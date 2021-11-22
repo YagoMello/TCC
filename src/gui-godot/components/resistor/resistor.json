@@ -1,0 +1,21 @@
+{
+  "simid": "R{id}",
+  "simmodel": "resistor",
+  "sprite": "resistor.png",
+  "highlight": "highlight.png",
+  "portinfo": [
+    {
+      "name": "positive",
+      "x": -32,
+      "y":   0
+    }, 
+    {
+      "name": "negative",
+      "x": 32,
+      "y":  0
+    }
+  ],
+  "params": {
+    "resistance": "1000"
+  }
+}

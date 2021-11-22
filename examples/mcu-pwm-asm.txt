@@ -1,0 +1,21 @@
+    MOVL   DDRA     0xFF
+
+MAIN:
+    MOVL   R7       0x01
+    ACALL  PWM
+    MOVL   R7       0x02
+    ACALL  PWM
+    AJ     MAIN
+
+PWM:
+    BANDF  R0       PORTA  R7
+    AJEQL  PWM-LOW  R0     0x00
+    BNOT   R1       R7
+    BANDF  PORTA    PORTA  R1
+    AJ     PWM-END
+PWM-LOW:
+    NOP
+    BORF   PORTA    PORTA  R7
+    NOP
+PWM-END:
+    RET

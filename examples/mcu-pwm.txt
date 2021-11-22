@@ -1,0 +1,24 @@
+# ==== NODES ====
+node a1 1e-8
+node a2 1e-8
+
+# ==== MCU ====
+component M1 digital::mcu8 128 128 ../examples/mcu-pwm-asm.txt true true
+
+edit node M1:1 gnd true
+edit node M1:4 hide false
+edit node M1:5 hide false
+
+# ==== COMP ====
+component VS sources::voltage-dc M1:2 M1:1 5
+component W1 wire M1:3 M1:2
+component R1 resistor M1:4 a1 10000
+component R2 resistor M1:5 a2 10000
+component gp printer::gnuplot points 1000 none
+
+# ==== PARAM ====
+param duration 600e-6
+param vd-max 100e-6
+param ts-max 100e-9
+
+#run

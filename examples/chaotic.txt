@@ -1,0 +1,19 @@
+node vcc 1e-6
+node gnd 1e-6
+node out1 4e-12
+node out2 4e-12
+node rc 470e-12
+edit node gnd gnd true
+component Rin resistor vcc out1 960
+component Lfil inductor out1 rc 22e-6
+component Lbas inductor out1 out2 220e-6
+component T1 npn out1 out2 gnd
+component T2 npn out2 gnd out1
+component Vs vs vcc gnd 5
+param ts-max 5e-9
+param vd-max 20e-6
+param duration 5e-6
+print interval 1e-10
+print start 0
+print type gnuplot chaotic.csv
+run

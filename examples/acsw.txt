@@ -1,0 +1,14 @@
+show models
+node v+ 1e-9
+node v- 1e-9
+node out 1e-6
+edit node v- gnd true
+component vs vs-ac-sweep-log v+ v- 1 1 10000 1
+component rl resistor v+ out 1000
+param duration 1
+param vd-max 50e-6
+param ts-max 20e-9
+print interval 16e-6
+print mode peak
+print type gnuplot outsweep.csv
+run 

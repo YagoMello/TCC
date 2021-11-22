@@ -1,0 +1,44 @@
+{
+  "simid": "INV{id}",
+  "simmodel": "inverter::pwm",
+  "sprite": "inverter.png",
+  "highlight": "inverter-highlight.png",
+  "portinfo": [
+    {
+      "name": "out1",
+      "x":  32,
+      "y": -16
+    }, 
+    {
+      "name": "out2",
+      "x": 32,
+      "y":  0
+    },
+    {
+      "name": "out3",
+      "x": 32,
+      "y": 16
+    },
+    {
+      "name": "in+",
+      "x": -32,
+      "y": -16
+    },
+    {
+      "name": "in-",
+      "x": -32,
+      "y":  16
+    }
+  ],
+  "params": {
+    "ammeter phase 1": "",
+    "ammeter phase 2": "",
+    "ammeter phase 3": "",
+    "switch resistance": "0.05",
+    "output freq.": "60",
+    "switching freq.": "1200",
+    "kp": "20",
+    "ki": "200"
+  }
+}
+ 

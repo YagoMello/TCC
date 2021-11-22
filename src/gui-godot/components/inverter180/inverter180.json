@@ -1,0 +1,38 @@
+{
+  "simid": "INV{id}",
+  "simmodel": "inverter::180",
+  "sprite": "inverter.png",
+  "highlight": "inverter-highlight.png",
+  "portinfo": [
+    {
+      "name": "out1",
+      "x":  32,
+      "y": -16
+    }, 
+    {
+      "name": "out2",
+      "x": 32,
+      "y":  0
+    },
+    {
+      "name": "out3",
+      "x": 32,
+      "y": 16
+    },
+    {
+      "name": "in+",
+      "x": -32,
+      "y": -16
+    },
+    {
+      "name": "in-",
+      "x": -32,
+      "y":  16
+    }
+  ],
+  "params": {
+    "switch resistance": "0.05",
+    "output freq.": "60"
+  }
+}
+ 

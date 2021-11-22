@@ -1,0 +1,17 @@
+node v6 10e-9
+node com 10e-9
+node v1 10e-9
+node v4 10e-9
+node v2 10e-9
+node v5 10e-9
+node v3 10e-9
+component v1-0 vs v1 com 10
+component v3-2 vs v3 v2 5
+#edit node com gnd true
+component vsin vs-ac-sweep-log v5 v4 5 100 10000 0.01 10
+component v6-5 vs v6 v5 -5
+component v4-3 vs v3 v4 -10
+component v2-1 vs v2 v1 5
+component rl resistor v5 com 100
+print type gnuplot vschain.csv
+run

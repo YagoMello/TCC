@@ -1,0 +1,19 @@
+node com 100
+edit node com gnd true
+node v+ 1e-9
+node v1 1e-9
+node v2 1e-9
+node v3 1e-9
+node v4 1e-9
+component vs vs v+ com 10
+component c1 capacitor v+ v1 1e-6
+component c2 capacitor v1 v2 1e-6
+component c3 capacitor v2 v3 1e-6
+component c4 capacitor v2 v4 1e-6
+component rl1 resistor v3 com 100
+component rl2 resistor v4 com 100
+print type gnuplot
+param duration 150e-6
+param ts-max 1e-6
+param vd-max 10e-6
+run

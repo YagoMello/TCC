@@ -1,0 +1,51 @@
+# ---- NODES ----
+
+node vcc 10e-6
+node com 10e-6
+
+node out1 1e-9
+node out2 1e-9
+node out3 1e-9
+
+node b1 10e-6
+node b2 10e-6
+node b3 10e-6
+
+# ---- NODE CONFIG ----
+
+edit node com gnd true
+edit node com hide true
+
+# ---- COMPONENTS ----
+
+component vs vs vcc com 5
+
+component ri1 resistor vcc out1 1001
+component ri2 resistor vcc out2 1000
+component ri3 resistor vcc out3 1000
+
+component rf1 resistor out1 b2 1000
+component rf2 resistor out2 b3 1000
+component rf3 resistor out3 b1 1000
+
+component bjt1 npn-legacy b1 out1 com 1e3 4.2
+component bjt2 npn-legacy b2 out2 com 1e3 4.2
+component bjt3 npn-legacy b3 out3 com 1e3 4.2
+
+component gp printer::gnuplot 10e-6 none
+#component cp printer::csv 1e-6 stdout none 7 true
+
+# ---- PRINTABLES ----
+
+print var bjt1:ic
+print var bjt1:ib
+
+# ---- PARAMS ----
+
+param ts-max 10e-9
+param duration 20e-3
+param vd-max 100e-6
+
+# ==== RUN ====
+
+run

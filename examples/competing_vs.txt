@@ -1,0 +1,22 @@
+node vin 100e-9 
+node com 100e-9
+node vslp 100e-9
+node vsln 100e-9
+node vsrp 100e-9
+node vsrn 100e-9
+node base 1e-9
+component vsl vs vslp vsln 10 0.01
+component vsr vs vsrp vsrn 10 0.01
+component t1 npn base vin com
+component rlp resistor vslp vin 1000
+component rln resistor vsln com 1000
+component rrp resistor vsrp vin 1000
+component rrn resistor vsrn com 1000
+component rt resistor vin base 1000
+edit node com gnd true
+param vd-max 10e-6
+param ts-max 10e-9
+print interval 2e-7
+param duration 10e-3
+print type gnuplot out.csv
+run

@@ -1,0 +1,14 @@
+node v+  100e-9
+node com 100e-9
+node lc  100e-6
+node rl  100e-9
+edit node com gnd true
+component ld load::step v+ rl 100e-6 0.01 1000e-6 1e6
+component vs old-vs v+ com 12 0.01
+component l1 inductor rl lc 100e-6
+component r1 resistor rl com 0.1
+component gp printer::gnuplot 5e-6 none
+param duration 5e-3
+param ts-max 1e-8
+param vd-max 100e-6
+run

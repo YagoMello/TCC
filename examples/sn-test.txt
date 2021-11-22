@@ -1,0 +1,10 @@
+node n1 16e-9
+node n2 16e-9
+node n3 16e-9
+node com 1e-9
+edit node com gnd true
+component C1 capacitor n1 com 32e-9
+component C2 capacitor n2 n1 16e-9
+component C3 capacitor n3 n1 16e-9
+print type gnuplot
+run

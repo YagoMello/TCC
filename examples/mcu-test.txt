@@ -1,0 +1,16 @@
+node a1 1e-10
+node a2 1e-10
+component M1 mcu8 127 127 ../examples/mcu-test-asm.txt
+edit node M1:1 gnd true
+edit node M1:4 hide false
+edit node M1:5 hide false
+component VS vs M1:2 M1:1 5
+component W1 wire M1:3 M1:2
+component W2 wire M1:4 a1
+component W3 wire M1:5 a2
+param duration 50e-6
+print interval 50e-9
+param vd-max 100e-6
+param ts-max 100e-9
+print type gnuplot mcu.csv
+run

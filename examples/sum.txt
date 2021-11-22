@@ -1,0 +1,34 @@
+# ==== NODE ====
+#    nome capacitancia
+node com  1e-9
+node in1  1e-9
+node in2  1e-9
+node in3  1e-9
+node in4  1e-9
+node out1 1e-9
+node out2 1e-9
+
+#    tipo obj prop val
+edit node com gnd  true
+edit node com hide true
+
+# ==== COMP ====
+# fonte de tensao                   +   -  ampl fmin fmax
+component vs1 sources::ac-sweep-log in1 com   1   10  200
+component vs2 sources::ac-sweep-log in2 com   1   20  100
+component vs3 sources::ac-sweep-log in3 com   1   30  300
+component vs4 sources::ac-sweep-log in4 com   1   40  80
+
+#  printer                     modo  qtd  estilo
+component gp printer::gnuplot points 1000 max-abs
+
+component s0 math::sum out1 in1 in2 in3
+component s1 math::mul out2 in2 in3 in4
+
+# ==== PARAM ====
+#     prop     val
+param duration 0.1
+param vd-max   200e-6
+param ts-max   200e-9
+
+run 

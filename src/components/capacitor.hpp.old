@@ -1,0 +1,50 @@
+#ifndef CAPACITOR_HPP
+#define CAPACITOR_HPP
+
+// INCLUDE <>
+#include <cstdint>
+
+// INCLUDE ""
+#include "../simulator/node.hpp"
+#include "../simulator/component.hpp"
+
+class capacitor_t : public component_t {
+public:
+    virtual void calculate_values(double, double) override {
+        double vd = node_t::voltage_difference(node_positive, node_negative);
+        double vc = charge / capacitance;
+        
+        double inv_cap_p = 1 / node_positive->get_capacitance();
+        double inv_cap_n = 1 / node_negative->get_capacitance();
+        double inv_cap_c = 1 / capacitance;
+        
+        charge_delta = (vd - vc) / (inv_cap_p + inv_cap_n + inv_cap_c);
+        charge += charge_delta;
+    }
+    
+    virtual void accumulate_charge_on_nodes(double) override {
+        node_positive->decrement_charge( charge_delta );
+        node_negative->increment_charge( charge_delta );
+    }
+    
+    void set_nodes(node_t * positive, node_t * negative){
+        node_positive = positive;
+        node_negative = negative;
+    }
+    
+    void set_capacitance(const double value){
+       capacitance = value;
+    }
+    
+private:
+    double capacitance = 1;
+    
+    double charge = 0;
+    double charge_delta = 0;
+    
+    node_t * node_positive;
+    node_t * node_negative;
+};
+
+
+#endif // CAPACITOR_HPP

@@ -1,0 +1,27 @@
+# ==== NODE ====
+#    nome     capacitancia
+node com      1e-9
+node filt-in  1e-9
+node filt-out 1e-9
+
+#    tipo obj prop val
+edit node com gnd  true
+edit node com hide true
+
+# ==== COMP ====
+# fonte de tensao                     +     -  A min max
+component vs sources::voltage-ac-sweep-log filt-in com 1 10 200
+
+#  printer                     modo  qtd  estilo
+component gp printer::gnuplot points 1000 max-abs
+
+#  funcao de transf.     no ent. no said. ref n [d0  d1   d2]  [n0 n1 n2]
+component tf control::tf filt-in filt-out com 2 1 0.001 0.00001 1
+
+# ==== PARAM ====
+#     prop     val
+param duration 1
+param vd-max   200e-6
+param ts-max   200e-9
+
+run 

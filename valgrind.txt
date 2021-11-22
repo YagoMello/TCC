@@ -1,0 +1,12 @@
+valgrind \
+    --leak-check=full \
+    --show-leak-kinds=all \
+    --track-origins=yes \
+    --verbose \
+    --log-file=valgrind-out.txt \
+    --tool=memcheck \
+    --show-reachable=yes \
+    --num-callers=20 \
+    --track-fds=yes \
+    --track-origins=yes \
+    ./native

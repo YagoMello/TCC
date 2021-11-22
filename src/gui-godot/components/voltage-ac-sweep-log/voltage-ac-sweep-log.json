@@ -1,0 +1,26 @@
+{
+  "simid": "AC{id}",
+  "simmodel": "sources::voltage-ac-sweep-log",
+  "sprite": "voltage.png",
+  "highlight": "voltage-highlight.png",
+  "portinfo": [
+    {
+      "name": "positive",
+      "x": 32,
+      "y":   0
+    }, 
+    {
+      "name": "negative",
+      "x": -32,
+      "y":  0
+    }
+  ],
+  "params": {
+    "amplitude": "5",
+    "freq. begin": "100",
+    "freq. end": "10e3",
+    "offset": "0",
+    "sweep time:": "0"
+  }
+}
+ 

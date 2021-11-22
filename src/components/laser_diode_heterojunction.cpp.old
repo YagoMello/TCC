@@ -1,0 +1,116 @@
+// INCLUDE <>
+#include <cmath>
+#include <adolc/adolc.h>
+
+// INCLUDE ""
+#include "../simulator/node.hpp"
+#include "../simulator/component.hpp"
+#include "../simulator/simulator.hpp"
+#include "../libs/next.hpp"
+#include "../libs/autoreg.hpp"
+#include "../program/database.hpp"
+#include "../program/utils.hpp"
+
+// sauce https://people.engr.ncsu.edu/mbs/Publications/vitae_theses/kanj_ms_2003.pdf
+
+class ldaser_diode_heterojuntion_t : public comp::component_t {
+public:
+    configration_status_t configure(node_map_type & nmap, printable_map_type & pmap, std::string args) override {
+        /*
+        bool is_ok;
+        is_ok  = utils::find_node(nmap, next(args), node_positive_);
+        is_ok &= utils::find_node(nmap, next(args), node_negative_);
+        if(!is_ok) return {is_ok, "Node not found"};
+        
+        i_sat_         = next_as<double>(args, 1e-14);
+        vt_            = next_as<double>(args, 26e-3);
+        didt_max_      = next_as<double>(args, 1e9);
+        
+        is_ok  = utils::add_printable(pmap, label() + ":i", "A", current_);
+        if(!is_ok) return {is_ok, "Failed to add printables!"};
+        
+        return {is_ok};
+        */
+    }
+    
+    void reset() override {
+        
+    }
+    
+    void update(double, double last_time_step) override {
+        // x[0]=state variable to compute v1 & i1
+        // x[1]=state variable to compute Sn==x1
+        // x[2]=dx[0]/dt time derivative of state variable x[0]
+        // x[3]=dx[1]/dt time derivative of state variable x[1]
+        
+        adouble v1, dv1_dx, i1, dv1_dt;
+        
+        adouble zero = 0;
+        adouble one  = 1;
+        
+        //parametrisation of the input I/V equations
+        condassign(v1,     Vpara - state_var_0_, state_var_0_ + zero, Vpara + vt*log(one + (1/vt)*(state_var_0_-Vpara)));
+        condassign(dv1_dx, Vpara - state_var_0_, one, one/(one + (1/vt)*(state_var_0_-Vpara)));
+        condassign(i1,     Vpara - state_var_0_, i01*(exp(state_var_0_/vt) - one), i01*exp(Vpara/vt)
+                                                    *(one + (1/vt)*(state_var_0_ - Vpara)) - i01);
+        
+        dv1_dt = dv1_dx * state_var_2_;
+        adouble v2 = vt*log(i1/i02 +1);
+        adouble vre = i1 * re;
+        adouble vj = vre + v1 + v2;
+        adouble ie = a*i1 + b*i1*i1;
+        adouble G = d*pow((ie/(cp/q/sc) - 2e13),2);
+        
+        adouble x1, dx1_dt;
+        
+        //parametrisation of the output photon density equation
+        x1 = pow((state_var_1_ - 2), 2) - .1;
+        dx1_dt = (2*pow((state_var_1_ - 2),1))*state_var_3_;
+        
+        out_i_0_ = i1 + b*i1*i1 + tns*((i1+i01)/vt)*dv1_dt +
+                        c0*pow((1-vj/vd), -0.5)*( dv1_dt + (i01/i02)*exp((v1-v2)/vt)
+                      * dv1_dt + re*((i1+i01)/vt)*dv1_dt) + G*x1;
+        out_v_0_ = rs*out_i_0_ + vj;
+        out_i_1_ = -G*x1 - beta*ie + x1/rp + cp*dx1_dt;
+        out_v_1_ = x1;
+    }
+private:
+    // sim var
+    adouble state_var_0_;
+    adouble state_var_1_;
+    adouble state_var_2_;
+    adouble state_var_3_;
+    
+    adouble out_i_0_;
+    adouble out_i_1_;
+    
+    adouble out_v_0_;
+    adouble out_v_1_;
+    
+    double Vpara; // like V1 in V. Rizzoli
+    double vt, q;
+    // Parameter variables
+    double rs, re, i01, i02, b, tns, c0, vd, d, a, rp, cp, sc, beta;
+    
+};
+/*
+// sim var
+    double state_var_0_; 
+    double state_var_1_; 
+    double state_var_2_; 
+    double state_var_3_; 
+    double res_series_; // ---------- Rs
+    double res_degen_;  // ---------- Re
+    double curr_leak_diode_1; // ---- I01
+    double curr_leak_diode_2; // ---- I02
+    double current_source_gain_; // - b
+    double recombination_lifetime; // Tns
+    double capacitance_; // --------- C0
+    double junction_potential_; // -- Vd
+    double weird_constant_1; // ----- D
+    double weird_constant_2; // ----- a
+    double optical_resistance_; // -- Rp
+    double optical_capacitance_; // - Cp
+    double photon_density_normalization_; // Sc
+    double compuled_emission_fraction_; // - Beta
+*/

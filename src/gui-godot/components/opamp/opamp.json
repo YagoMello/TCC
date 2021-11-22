@@ -1,0 +1,34 @@
+{
+  "simid": "OP{id}",
+  "simmodel": "opamp::simple",
+  "sprite": "opamp.png",
+  "highlight": "opamp-highlight.png",
+  "offset": {
+    "x": 0,
+    "y": 8
+  },
+  "portinfo": [
+    {
+      "name": "noninverting",
+      "x": -32,
+      "y":   8  
+    },
+    {
+      "name": "inverting",
+      "x": -32,
+      "y":  -8
+    },
+    {
+      "name": "output",
+      "x":  32,
+      "y":   8
+    }
+  ],
+  "params": {
+    "volt max": "15",
+    "gain": "100e3",
+    "-3dB freq": "10",
+    "poles": "1"
+  }
+}
+ 

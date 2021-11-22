@@ -1,0 +1,22 @@
+{
+  "simid": "I{id}",
+  "simmodel": "ammeter",
+  "sprite": "ammeter.png",
+  "highlight": "ammeter-highlight.png",
+  "portinfo": [
+    {
+      "name": "in",
+      "x": -32,
+      "y":   0
+    }, 
+    {
+      "name": "out",
+      "x": 32,
+      "y":  0
+    }
+  ],
+  "params": {
+    "shared var": "",
+  }
+}
+ 

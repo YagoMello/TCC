@@ -1,0 +1,24 @@
+# ==== nodes ====
+node v+   1e-9
+node v-   1e-9
+node out  10e-9
+node base 0.1e-9
+node ac   1e-9
+
+edit node v- gnd true
+edit node v- hide true
+
+# ==== components ====
+component vdc sources::voltage-dc v+ v- 10
+component vac sources::voltage-ac-sweep-log ac v- 5 10000 1000000
+component rl resistor v+ out 100
+component rb resistor ac base 100
+component t1 npn base out v- 100 0.5 10e3
+component gp printer::gnuplot points 1000 none
+
+# ==== params ====
+param duration 0.001
+param vd-max 300e-6
+param ts-max 10e-9
+
+run 

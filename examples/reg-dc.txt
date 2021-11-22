@@ -1,0 +1,18 @@
+node vin 1e-9 
+edit node vin capacitance 100e-9
+node com 100e-9
+node adj 1e-9
+node fbk 1e-9
+node vout 100e-6
+component vs vs vin com 10
+component ta npn adj vin vout
+component tf npn fbk adj com
+component ra resistor vin adj 1000
+component r1 resistor vout fbk 2000
+component r2 resistor fbk com 1000
+component rl resistor vout com 200
+edit node com gnd true
+param vd-max 10e-6
+param ts-max 10e-9
+print type gnuplot out.csv
+run

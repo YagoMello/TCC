@@ -1,0 +1,220 @@
+#ifndef SCR_HPP
+#define SCR_HPP
+
+// INCLUDE <>
+#include <cstdint>
+
+// INCLUDE ""
+#include "../simulator/node.hpp"
+#include "../simulator/component.hpp"
+
+#include "bjt.hpp"
+#include "voltage_source.hpp"
+
+class scr_t : public component_t {
+public:
+    virtual void apply_patches(simulator_t * simulator) override {
+        //node_internal.hide(true);
+        
+        node_internal .increment_capacitance(10e-9);
+        node_positive->increment_capacitance(10e-9);
+        node_negative->increment_capacitance(10e-9);
+        node_gate    ->increment_capacitance(10e-9);
+        
+        simulator->add_node(&node_internal);
+        q1.set_beta_f(30);
+        q1.set_beta_r(10);
+        q2.set_beta_f(30);
+        q2.set_beta_r(10);
+    }
+    
+    virtual void calculate_constants(double voltage_difference_max) override {
+        q1.calculate_constants(voltage_difference_max);
+        q2.calculate_constants(voltage_difference_max);
+    }
+    
+    virtual void update(double time, double voltage_difference_max) override {
+        q1.update(time, voltage_difference_max);
+        q2.update(time, voltage_difference_max);
+    }
+    
+    virtual void accumulate_charge_on_nodes(double time_step) override {
+        q1.accumulate_charge_on_nodes(time_step);
+        q2.accumulate_charge_on_nodes(time_step);
+    }
+    
+    virtual double get_max_time_step() override {
+        return std::min(
+            q1.get_max_time_step(),
+            q2.get_max_time_step()
+        );
+    }
+    
+    void positive(node_t * node){
+        node_positive = node;
+        update_pins();
+    }
+    
+    void negative(node_t * node){
+        node_negative = node;
+        update_pins();
+    }
+    
+    void gate(node_t * node){
+        node_gate = node;
+        update_pins();
+    }
+    
+    void update_pins(){
+        q1.set_collector(node_gate);
+        q1.set_emitter(node_positive);
+        
+        q2.set_base(node_gate);
+        q2.set_emitter(node_negative);
+        
+        q1.set_base(&node_internal);
+        q2.set_collector(&node_internal);
+    }
+    
+private:
+    double current = 0;
+    double i_sat = 1e-14;
+    double vt = 26e-3;
+    
+    pnp_t q1;
+    npn_t q2;
+    
+    /*
+    // TODO: VERIFY IF DAMPED NODE WORKS
+    // TLDR: It didnt
+    damped_node_t node_internal = damped_node_t(30);
+    */
+    node_t node_internal;
+    
+    node_t * node_positive = nullptr;
+    node_t * node_negative = nullptr;
+    node_t * node_gate     = nullptr;
+};
+
+class scr_firing_t : public component_t {
+public:
+    
+    virtual void update(double time, double) override {
+        double vp = node_t::voltage_difference(node_scr_p, node_ref_p);
+        double vn = node_t::voltage_difference(node_scr_n, node_ref_n);
+        
+        int32_t firing = status(time);
+        if(firing > 0){
+            current_p = (vp - voltage) / resistance;
+            current_n = (vn -    0   ) / resistance;
+        }
+        else if(firing < 0){
+            current_p = (vp -    0   ) / resistance;
+            current_n = (vn - voltage) / resistance;
+        }
+        else{
+            current_p = (vp -    0   ) / resistance;
+            current_n = (vn -    0   ) / resistance;
+        }
+        
+        node_scr_p->add_sink( current_p);
+        node_scr_n->add_sink( current_n);
+        
+        node_ref_p->add_sink(-current_p);
+        node_ref_n->add_sink(-current_n);
+    }
+    
+    virtual void accumulate_charge_on_nodes(double time_step) override {
+        node_scr_p->decrement_charge( current_p * time_step );
+        node_scr_n->decrement_charge( current_n * time_step );
+        
+        node_ref_p->increment_charge( current_p * time_step );
+        node_ref_n->increment_charge( current_n * time_step );
+    }
+    
+    void set_scr_p(node_t * node){
+        node_scr_p = node;
+    }
+    
+    void set_scr_n(node_t * node){
+        node_scr_n = node;
+    }
+    
+    void set_ref_p(node_t * node){
+        node_ref_p = node;
+    }
+    
+    void set_ref_n(node_t * node){
+        node_ref_n = node;
+    }
+    
+    void set_resistance(double resistance_inp){
+        resistance = resistance_inp;
+    }
+    
+    void set_voltage(double voltage_inp){
+        voltage = voltage_inp;
+    }
+    
+    void set_frequency(double frequency_inp){
+        frequency = frequency_inp;
+    }
+    
+    void set_phase(double phase_inp){
+        phase = phase_inp;
+    }
+    
+    void set_firing_angle(double angle){
+        firing_angle = angle;
+    }
+    
+    double get_point(double time){
+        double point      = time * frequency + phase / (2 * num_pi);
+        double point_int  = static_cast<uint64_t>(point);
+        double normalized = point - point_int;
+        return normalized;
+    }
+    
+    int32_t status(double time){
+        double point = get_point(time);
+        double firing_point = firing_angle / (2 * num_pi);
+        int32_t result;
+        if(
+            point > firing_point &&
+            point < 0.5
+        ){
+            result = 1;
+        }
+        else if(
+            point > firing_point + 0.5
+        ){
+            result = -1;
+        }
+        else{
+            result = 0;
+        }
+        
+        return result;
+    }
+    
+private:
+    double current_p = 0;
+    double current_n = 0;
+    
+    double phase = 0;
+    double firing_angle = 0;
+    double voltage = 0;
+    double frequency = 60;
+    double resistance  = 1000;
+    
+    node_t * node_scr_p;
+    node_t * node_scr_n;
+    
+    node_t * node_ref_p;
+    node_t * node_ref_n;
+    
+    static constexpr double num_pi = 3.141592653589793238462643383279502884L;
+};
+
+
+#endif // SCR_HPP

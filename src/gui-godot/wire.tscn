@@ -1,0 +1,198 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://assets/wire_highlight.png" type="Texture" id=1]
+[ext_resource path="res://assets/wire.png" type="Texture" id=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node2D
+
+var pin_obj := preload(\"res://pin.tscn\")
+
+enum HighlightMode {OFF, SELECTED_ONLY, HOVER}
+enum InputMode {IGNORE, M1_ONLY, NORMAL}
+
+class model_info_type:
+	var instance_count: int = 0
+
+export var id := \"null\"
+export var simid := \"W{id}\"
+export onready var pinleft := pin_obj.instance()
+export onready var pinright := pin_obj.instance()
+
+var _is_selected := false
+var on_click_callback: FuncRef
+var _highlight_mode: int = HighlightMode.HOVER
+var _input_mode: int = InputMode.NORMAL
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pinleft.is_draggable = true
+	pinright.is_draggable = true
+	
+	pinleft.position.x = -16
+	pinright.position.x = 16
+	
+	pinleft.is_gnd = false
+	pinright.is_gnd = false
+	
+	pinleft.is_hidden = true
+	pinright.is_hidden = true
+	
+	var grid_size = get_parent().grid_size
+	#var grid_margin = int(grid_size) + 1
+	
+	#$sprite/control.margin_top    = -grid_margin
+	#$sprite/control.margin_bottom =  grid_margin
+	
+	pinleft.set_grid(grid_size)
+	pinright.set_grid(grid_size)
+	
+	add_child(pinright)
+	add_child(pinleft)
+
+
+func destructor():
+	return {\"pins\": get_pins()}
+
+
+func init(model_info):
+	if not model_info.has(simid):
+			print(\"creating info for \", simid)
+			model_info[simid] = model_info_type.new()
+	id = simid.format({\"id\": model_info[simid].instance_count})
+	pinleft.id = id + \".1\"
+	pinright.id = id + \".2\"
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+#func _process(_delta):
+#	pass
+
+
+func move_pin(pin):
+	pin.position = _clip_to_grid(position + get_local_mouse_position()) - position
+	pin.position.x = int(pin.position.x + sign(pin.position.x) * 0.5)
+	pin.position.y = int(pin.position.y + sign(pin.position.y) * 0.5)
+	#pin.position = transform.xform_inv(_clip_to_grid(transform.xform(pin.position) + get_local_mouse_position()))
+	
+	_update_position()
+
+
+func _clip_to_grid(offset: Vector2) -> Vector2:
+	var grid_size = get_parent().grid_size
+	var offset_grid := Vector2()
+	if offset.x >= float(grid_size)/2:
+		offset_grid.x = grid_size * int(float(offset.x) / grid_size + 0.5)
+	elif -offset.x > float(grid_size)/2:
+		offset_grid.x = grid_size * int(float(offset.x) / grid_size - 0.5)
+	
+	if offset.y >= float(grid_size)/2:
+		offset_grid.y = grid_size * int(float(offset.y) / grid_size + 0.5)
+	elif -offset.y > float(grid_size)/2:
+		offset_grid.y = grid_size * int(float(offset.y) / grid_size - 0.5)
+	
+	return offset_grid
+
+
+func move(offset: Vector2):
+	for pin in get_pins():
+		pin.position += offset
+	
+	_update_position()
+
+
+func _update_position():
+	var midpoint = (pinright.position + pinleft.position)/2
+	
+	pinright.position -= midpoint
+	pinleft.position -= midpoint
+	position += midpoint
+	
+	var vec_diff = pinright.position - pinleft.position
+	var dist = pinleft.position.distance_to(pinright.position)/32
+	
+	$sprite.transform = Transform2D().scaled(Vector2(dist,1)).rotated(atan2(vec_diff.y, vec_diff.x))
+	$highlight.transform = Transform2D().scaled(Vector2(dist,1)).rotated(atan2(vec_diff.y, vec_diff.x))
+
+
+func _on_control_mouse_entered():
+	if _highlight_mode == HighlightMode.HOVER:
+		$highlight.visible = true
+
+
+func _on_control_mouse_exited():
+	if _highlight_mode == HighlightMode.HOVER:
+		$highlight.visible = false
+
+
+func _on_control_gui_input(event):
+	if _input_mode == InputMode.M1_ONLY or _input_mode == InputMode.NORMAL:
+		if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and event.pressed:
+			on_click_callback.call_func(self)
+
+
+func try_add_another():
+	var parent = get_parent()
+	if parent.placement_mode_on and not pinleft.is_dragging and not pinright.is_dragging:
+		parent.add_another_component()
+
+
+func get_pins():
+	return  [pinleft, pinright]
+
+
+func is_selected(value: bool):
+	_is_selected = value
+	highlight(value)
+	if value:
+		print(\"setting \", id, \" to PASS\")
+		$sprite/control.mouse_filter = Control.MOUSE_FILTER_PASS
+	else:
+		print(\"setting \", id, \" to STOP\")
+		$sprite/control.mouse_filter = Control.MOUSE_FILTER_STOP
+
+
+func place_pin() -> bool:
+	if pinleft.is_dragging == true:
+		pinleft.is_dragging = false
+		return true
+	else:
+		pinright.is_dragging = false
+		return false
+
+func mouse_detection(active: bool):
+	if active:
+		_input_mode = InputMode.NORMAL
+		_highlight_mode = HighlightMode.HOVER
+	else:
+		_input_mode = InputMode.M1_ONLY
+		_highlight_mode = HighlightMode.SELECTED_ONLY
+
+
+func highlight(active: bool):
+	$highlight.visible = active
+
+"
+
+[node name="wire" type="Node2D"]
+script = SubResource( 1 )
+
+[node name="highlight" type="Sprite" parent="."]
+visible = false
+texture = ExtResource( 1 )
+
+[node name="sprite" type="Sprite" parent="."]
+texture = ExtResource( 2 )
+
+[node name="control" type="Control" parent="sprite"]
+margin_left = -16.0
+margin_top = -7.0
+margin_right = 16.0
+margin_bottom = 7.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="gui_input" from="sprite/control" to="." method="_on_control_gui_input"]
+[connection signal="mouse_entered" from="sprite/control" to="." method="_on_control_mouse_entered"]
+[connection signal="mouse_exited" from="sprite/control" to="." method="_on_control_mouse_exited"]

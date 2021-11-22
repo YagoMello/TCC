@@ -1,0 +1,39 @@
+{
+  "simid": "T{id}",
+  "simmodel": "transformer",
+  "sprite": "transformer.png",
+  "highlight": "transformer-highlight.png",
+  "offset": {
+    "x": 0,
+    "y": 0
+  },
+  "portinfo": [
+    {
+      "name": "primary-in",
+      "x": -32,
+      "y": -32
+    }, 
+    {
+      "name": "primary-out",
+      "x": -32,
+      "y":  32
+    }, 
+    {
+      "name": "secondary-in",
+      "x":  32,
+      "y": -32
+    }, 
+    {
+      "name": "secondary-out",
+      "x": 32,
+      "y": 32
+    }
+  ],
+  "params": {
+    "prim. induct.": "100e-3",
+    "turns ratio": "1",
+    "coup. factor:": "0.9999",
+    "prim. resist.": "0.1",
+    "sec. resist.": "0.1"
+  }
+}

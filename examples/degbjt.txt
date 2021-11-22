@@ -1,0 +1,19 @@
+node v+ 1e-9
+node v- 1e-9
+node out 100e-9
+node base 0.1e-9
+node vin 1e-9
+edit node v- gnd true
+component vdc vs v+ v- 10
+component vac vs vin v- 5
+component rl resistor v+ out 100
+component rb resistor vin base 100
+component T1 npn base out v- 1e3 
+#component T1 npn-legacy base out v-
+param duration 0.001
+param vd-max 100e-6
+param ts-max 10e-9
+print interval 100e-9
+#print mode peak
+print type gnuplot outsweep.csv
+run

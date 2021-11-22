@@ -1,0 +1,21 @@
+# ==== NODES ====
+node v+  1e-9
+node v-  1e-9
+node out 1e-9
+
+edit node v- gnd true
+edit node v- hide true
+
+# ==== COMPONENTS ====
+#component vs sources::voltage-ac-sweep-log v+ v- 2 5 100
+component vs sources::voltage-dc-sweep v+ v- -1 1
+component d1 diode v+ out 0.05
+#component rl resistor out v- 0.1
+component w1 wire out v-
+component gp printer::gnuplot points 1000 none
+#component vd math::sub v+ out
+
+param duration 0.5
+print var d1:i
+
+run

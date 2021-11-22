@@ -1,0 +1,25 @@
+{
+  "simid": "AC{id}",
+  "simmodel": "sources::voltage-ac",
+  "sprite": "voltage.png",
+  "highlight": "voltage-highlight.png",
+  "portinfo": [
+    {
+      "name": "positive",
+      "x": 32,
+      "y":   0
+    }, 
+    {
+      "name": "negative",
+      "x": -32,
+      "y":  0
+    }
+  ],
+  "params": {
+    "amplitude": "12",
+    "frequency": "1000",
+    "phase": "0",
+    "offset": "0"
+  }
+}
+ 

@@ -1,0 +1,1029 @@
+[gd_scene load_steps=7 format=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Panel
+
+export var grid_size := 16
+export var placement_mode_on = false
+
+var comp_model = preload(\"res://component.tscn\")
+var wire_model = preload(\"res://wire.tscn\")
+
+var _is_on_focus := false
+var _model_names :=  []
+var _components := []
+var _wires := []
+var _placement_mode_id := 0
+var _placement_mode_component = null
+var _pin_list := []
+var _model_info := {}
+var _selected_object_list := Array()
+
+var _is_dragging := false
+var _dragging_start_pos: Vector2
+var _just_selected := false
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	_model_names = find_components()
+	var index := 0
+	for comp in _model_names:
+		$popup_menu.add_item(comp, index)
+		index += 1
+	
+	get_node(\"../info_bar/sim_config_button/sim_config/write_to_file/write\").grid_size = grid_size
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(_delta):
+	if false:
+		get_node(\"../info_bar/x_coord\").text = \"x: \" + String(int(get_local_mouse_position().x))
+		get_node(\"../info_bar/y_coord\").text = \"y: \" + String(int(get_local_mouse_position().y))
+	
+	get_node(\"../info_bar/x_coord\").text = \"x: \" + String(int(get_local_mouse_position().x))
+	get_node(\"../info_bar/y_coord\").text = \"y: \" + String(int(get_local_mouse_position().y))
+	
+	if Input.is_action_just_pressed(\"ui_cancel\"):
+		print(\"esc\")
+		deselect_objects()
+		if placement_mode_on:
+			exit_placement_mode()
+	
+	_move_selected_components()
+	
+	if Input.is_action_just_pressed(\"rotate_selected_objects\"):
+		_rotate_selected_objects()
+	
+	if Input.is_action_just_pressed(\"mirror_selected_objects\"):
+		_mirror_selected_objects()
+	
+	if Input.is_action_just_pressed(\"remove_selected_objects\"):
+		_remove_selected_objects()
+
+
+func _on_main_area_gui_input(event):
+	if event is InputEventMouseButton and event.button_index == BUTTON_RIGHT and not event.pressed:
+		print(\"main area: m2\")
+		if placement_mode_on:
+			exit_placement_mode()
+		var mouse_pos = get_global_mouse_position()
+		$popup_menu.popup(Rect2(mouse_pos.x, mouse_pos.y, 200, 200))
+	
+	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not placement_mode_on:
+		print(\"main area: m1\")
+		if event.pressed:
+			if _just_selected:
+				print(\"m1 ignored\")
+				_just_selected = false
+			else:
+				deselect_objects()
+		_is_dragging = event.pressed
+	
+	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed and placement_mode_on:
+		_place_component()
+
+
+func check_component_collision(comp):
+	print(\"checking for component collision\")
+	var collision := false
+	for other_comp in _components:
+		if comp.position == other_comp.position and comp != other_comp:
+			collision = true
+			print(\"component collision!\")
+			
+	return collision
+
+
+func find_components():
+	var models := [\"wire\"];
+	
+	var dir := Directory.new()
+	if dir.open(\"./components\") == OK:
+		var _err = dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != \"\":
+			if file_name[0] == \".\":
+				pass
+			elif dir.current_is_dir():
+					if dir.file_exists(file_name + \"/\" + file_name + \".json\"):
+						models.append(file_name)
+					else:
+						print(\"at components/\", file_name, \": missing file \" + file_name + \".json\")
+			else:
+				print(file_name + \" is a file!\")
+			file_name = dir.get_next()
+	else:
+		print(\"Component folder not found, skipping component search...\")
+	
+	return models
+
+
+func enter_placement_mode(obj: Object, id: int):
+	print(\"entering placement mode\")
+	select_single_object(obj)
+	_placement_mode_component = obj
+	_placement_mode_id = id
+	placement_mode_on = true
+	if _model_names[id] != \"wire\":
+		_is_dragging = true
+
+
+func exit_placement_mode():
+	print(\"exiting placement mode\")
+	deselect_objects()
+	var objects = _placement_mode_component.destructor()
+	
+	for pin in objects[\"pins\"]:
+		_pin_list.erase(pin)
+	
+	if _model_names[_placement_mode_id] != \"wire\":
+		_components.erase(_placement_mode_component)
+	else:
+		_wires.erase(_placement_mode_component)
+	
+	_placement_mode_component.queue_free()
+	_placement_mode_component = null
+	
+	placement_mode_on = false
+	_is_dragging = false
+
+
+func _on_add_item_id_pressed(id):
+	print(\"adding item by id (\", id, \")\")
+	add_component_by_id(id)
+
+
+func _on_main_area_mouse_entered():
+	_is_on_focus = true
+
+
+func _on_main_area_mouse_exited():
+	_is_on_focus = false
+
+
+func add_component_by_id(id: int, ref = null):
+	var model: String = _model_names[id]
+	var filepath := \"res://components/\" + model + \"/\" 
+	var filename := model + \".json\"
+	
+	if model != \"wire\":
+		var comp = comp_model.instance()
+		add_child(comp)
+		
+		if ref != null:
+			comp.transform = ref.transform
+		
+		comp.position = _clip_to_grid(get_local_mouse_position())
+		comp.init(filepath, filename, _model_info)
+		comp.on_click_callback = funcref(self, \"select_single_object\")
+		
+		if ref != null:
+			comp.position -= comp.offset
+			comp.position += ref.offset
+			comp.offset = ref.offset
+		
+		print(\"component created as \" + comp.data[\"simid\"])
+		_components.append(comp)
+		_pin_list.append_array(comp.get_pins())
+		
+		enter_placement_mode(comp, id)
+	else:
+		var wire = wire_model.instance()
+		add_child(wire)
+		
+		wire.init(_model_info)
+		wire.on_click_callback = funcref(self, \"select_single_object\")
+		_wires.append(wire)
+		
+		for pin in wire.get_pins():
+			_pin_list.append(pin)
+			pin.position = _clip_to_grid(get_local_mouse_position())
+			pin.is_dragging = true
+		
+		enter_placement_mode(wire, id)
+
+
+func add_another_component():
+	_model_info[_placement_mode_component.simid].instance_count += 1
+	add_component_by_id(_placement_mode_id, _placement_mode_component)
+
+
+func get_pin_list():
+	return _pin_list
+
+
+func get_component_list():
+	return _components
+
+
+func get_wire_list():
+	return _wires
+
+
+func _move_to_top(comp):
+	move_child(comp, get_child_count())
+
+
+func _move_selected_components():
+	if _is_dragging and _selected_object_list.size() > 0:
+		var offset = get_local_mouse_position() - _dragging_start_pos
+		var offset_grid = _clip_to_grid(offset)
+		
+		_dragging_rebase(offset_grid)
+		
+		for obj in _selected_object_list:
+			_move_to_top(obj)
+			obj.move(offset_grid)
+		
+	else:
+		_dragging_start_pos = get_local_mouse_position()
+
+
+func _dragging_rebase(offset):
+	_dragging_start_pos += offset
+
+
+func _get_real_pin_position(pin):
+	return pin.get_parent().transform.xform(pin.position)
+
+
+func select_single_object(obj: Object):
+	deselect_objects()
+	component_interaction_enabled(false)
+	_selected_object_list.append(obj)
+	obj.is_selected(true)
+	obj.highlight(true)
+	_just_selected = true
+	for pin in obj.get_pins():
+		print(\"pin \", pin.id, \" at \", _get_real_pin_position(pin))
+
+
+func deselect_objects():
+	for elem in _selected_object_list:
+		elem.is_selected(false)
+	_selected_object_list.clear()
+	component_interaction_enabled(true)
+
+
+func component_interaction_enabled(value: bool):
+	for comp in _components:
+		comp.mouse_detection(value)
+	
+	for wire in _wires:
+		wire.mouse_detection(value)
+	
+	for pin in _pin_list:
+		pin.mouse_detection(value)
+
+
+func _clip_to_grid(offset: Vector2) -> Vector2:
+	var offset_grid := Vector2()
+	if offset.x >= float(grid_size)/2:
+		offset_grid.x = grid_size * int(float(offset.x) / grid_size + 0.5)
+	elif -offset.x > float(grid_size)/2:
+		offset_grid.x = grid_size * int(float(offset.x) / grid_size - 0.5)
+	
+	if offset.y >= float(grid_size)/2:
+		offset_grid.y = grid_size * int(float(offset.y) / grid_size + 0.5)
+	elif -offset.y > float(grid_size)/2:
+		offset_grid.y = grid_size * int(float(offset.y) / grid_size - 0.5)
+	
+	return offset_grid
+
+
+func _rotate_selected_objects():
+	for obj in _selected_object_list:
+		obj.position -= obj.offset
+		obj.rotate(deg2rad(90))
+		obj.offset = obj.offset.rotated(deg2rad(90))
+		obj.position += obj.offset
+
+
+func _mirror_selected_objects():
+	for obj in _selected_object_list:
+		obj.transform *= Transform2D(Transform.FLIP_X)
+
+
+func _remove_selected_objects():
+	for object in _selected_object_list:
+		var internals = object.destructor()
+		
+		for pin in internals[\"pins\"]:
+			_pin_list.erase(pin)
+		
+		_components.erase(object)
+		_wires.erase(object)
+		
+		object.queue_free()
+		object = null
+	
+	_selected_object_list.clear()
+
+
+func _place_component():
+	if _model_names[_placement_mode_id] != \"wire\":
+		if check_component_collision(_placement_mode_component):
+			print(\"component collision\")
+		else:
+			print(\"main area: b1 - adding another component\")
+			deselect_objects()
+			add_another_component()
+			
+	else:
+		print(\"main area: b1 - placing wire pin\")
+		if not _placement_mode_component.place_pin():
+			print(\"main area: b1 - adding another wire\")
+			deselect_objects()
+			add_another_component()
+"
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends LineEdit
+
+
+# Declare member variables here. Examples:
+# var a = 2
+# var b = \"text\"
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+#func _process(delta):
+#	pass
+
+
+func _on_cli_input_text_entered(_new_text):
+	clear()
+"
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends Panel
+
+
+# Declare member variables here. Examples:
+# var a = 2
+# var b = \"text\"
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+#func _process(delta):
+#	pass
+
+
+func _on_sim_config_button_toggled(button_pressed):
+	visible = button_pressed
+"
+
+[sub_resource type="GDScript" id=4]
+script/source = "extends Button
+
+var Component = preload(\"res://component.tscn\")
+var grid_size := 16
+
+class NodeInfoArrays:
+	var node_count = 0
+	var ids: Array
+	var positions: Array
+	var is_gnd: Array
+	var is_hidden: Array
+
+class WireInfo:
+	var id: String
+	var node_in_index: int
+	var node_out_index: int
+
+class ComponentInfo:
+	var comp = null
+	var nodes: Array
+	var args: String
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+#func _process(delta):
+#	pass
+
+
+func _on_write_button_up():
+	export_info()
+
+
+func export_info():
+	var editor = get_node(\"../../../../../main_area\")
+	var file = _create_file()
+	
+	var nodeinfo = _create_nodes(editor)
+	var wireinfo = _create_wire_info(editor, nodeinfo)
+	var compinfo = _create_component_info(editor, nodeinfo)
+	
+	_write_node_data(file, nodeinfo)
+	_write_node_modifiers(file, nodeinfo)
+	_write_component_data(file, nodeinfo, compinfo)
+	_write_wireinfo_data(file, nodeinfo, wireinfo)
+	_write_sim_param_data(file)
+	_write_run(file)
+	
+	file.close()
+
+
+func _get_real_pin_position(pin):
+	var pin_pos = pin.get_parent().transform.xform(pin.position)
+	var pin_grid = _clip_to_grid(pin_pos)
+	return pin_grid
+
+
+func _clip_to_grid(offset: Vector2) -> Vector2:
+	var offset_grid := Vector2()
+	if offset.x >= float(grid_size)/2:
+		offset_grid.x = grid_size * int(float(offset.x) / grid_size + 0.5)
+	elif -offset.x > float(grid_size)/2:
+		offset_grid.x = grid_size * int(float(offset.x) / grid_size - 0.5)
+	
+	if offset.y >= float(grid_size)/2:
+		offset_grid.y = grid_size * int(float(offset.y) / grid_size + 0.5)
+	elif -offset.y > float(grid_size)/2:
+		offset_grid.y = grid_size * int(float(offset.y) / grid_size - 0.5)
+	
+	return offset_grid
+
+
+func _create_file():
+	var filename = get_node(\"../../sim_file_name/value\").text
+	var file = File.new()
+	file.open(filename, File.WRITE)
+	return file
+
+
+func _create_nodes(editor):
+	var nodeinfo := NodeInfoArrays.new()
+	for pin in editor.get_pin_list():
+		print(\"received pin \", pin.id, \" at \", String(_get_real_pin_position(pin)))
+		#print(\"pin pos: \", pin.position)
+		#print(\"par pos: \", pin.get_parent().position)
+		#print(\"pin tra: \", pin.transform)
+		#print(\"par tra: \", pin.get_parent().transform)
+		var index = nodeinfo.positions.find(_get_real_pin_position(pin))
+		
+		if index == -1:
+			print(\"adding position to list\")
+			nodeinfo.positions.append(_get_real_pin_position(pin))
+			nodeinfo.ids.append(pin.id)
+			nodeinfo.is_gnd.append(pin.is_gnd)
+			nodeinfo.is_hidden.append(pin.is_hidden)
+			nodeinfo.node_count += 1
+		else:
+			print(\"position already in list\")
+			if nodeinfo.ids[index] == \"null\" \\
+			or (nodeinfo.is_hidden[index] and not pin.is_hidden):
+				print(\"changing id from \", nodeinfo.ids[index], \" to \", pin.id)
+				nodeinfo.ids[index] = pin.id
+			
+			if pin.is_gnd:
+				nodeinfo.is_gnd[index] = true
+			
+			if not pin.is_hidden:
+				nodeinfo.is_hidden[index] = false
+			
+		
+	return nodeinfo
+
+
+func _create_wire_info(editor, nodeinfo: NodeInfoArrays):
+	var wires := Array()
+	
+	for editor_wire in editor.get_wire_list():
+		var sim_wire = WireInfo.new()
+		
+		sim_wire.id = editor_wire.id
+		sim_wire.node_in_index = nodeinfo.positions.find(_get_real_pin_position(editor_wire.pinleft))
+		sim_wire.node_out_index = nodeinfo.positions.find(_get_real_pin_position(editor_wire.pinright))
+		
+		wires.append(sim_wire)
+	
+	return wires
+
+
+func _create_component_info(editor, nodeinfo):
+	var components := Array()
+	
+	for editor_comp in editor.get_component_list():
+		var compinfo = ComponentInfo.new()
+		
+		compinfo.comp = editor_comp
+		compinfo.nodes = _get_nodes_from_pins(editor_comp, nodeinfo)
+		compinfo.args = _data_to_args(editor_comp)
+		
+		components.append(compinfo)
+	
+	return components
+
+
+func _get_nodes_from_pins(comp, nodes):
+	var pinindex := Array()
+	
+	for pin in comp.get_pins():
+		pinindex.append(nodes.positions.find(_get_real_pin_position(pin)))
+	
+	return pinindex
+
+func _data_to_args(comp):
+	var args = String()
+	
+	for elem in comp.data[\"params\"]:
+		args += \" \"
+		args += comp.data[\"params\"][elem]
+	
+	return args
+
+
+func _write_node_data(file: File, nodeinfo: NodeInfoArrays):
+	var default_cap = get_node(\"../../default_capacitance/value\").text
+	file.store_string(\"# ==== NODE ====\\n\")
+	for id in nodeinfo.ids:
+		file.store_string(\"node \")
+		file.store_string(id)
+		file.store_string(\" \")
+		file.store_string(default_cap)
+		file.store_string(\"\\n\")
+	
+	file.store_string(\"\\n\")
+
+func _write_node_modifiers(file: File, nodeinfo: NodeInfoArrays):
+	file.store_string(\"# ==== NODE MOD ====\\n\")
+	for index in range(nodeinfo.node_count):
+		if nodeinfo.is_hidden[index]:
+			file.store_string(\"edit node \")
+			file.store_string(nodeinfo.ids[index])
+			file.store_string(\" hide true\\n\")
+	
+	for index in range(nodeinfo.node_count):
+		if nodeinfo.is_gnd[index]:
+			file.store_string(\"edit node \")
+			file.store_string(nodeinfo.ids[index])
+			file.store_string(\" gnd true\\n\")
+	
+	file.store_string(\"\\n\")
+
+func _write_component_data(file: File, nodeinfo: NodeInfoArrays, comps: Array):
+	file.store_string(\"# ==== COMP ====\\n\")
+	
+	for compinfo in comps:
+		if compinfo.comp.data[\"simmodel\"] != \"\":
+			file.store_string(\"component \")
+			file.store_string(compinfo.comp.data[\"simid\"])
+			file.store_string(\" \")
+			file.store_string(compinfo.comp.data[\"simmodel\"])
+			
+			_write_compinfo_nodes(file, nodeinfo, compinfo.nodes)
+			
+			file.store_string(compinfo.args)
+			file.store_string(\"\\n\")
+	
+	file.store_string(\"\\n\")
+
+
+func _write_compinfo_nodes(file: File, nodeinfo: NodeInfoArrays, node_index_array: Array):
+	for node_index in node_index_array:
+		file.store_string(\" \")
+		file.store_string(nodeinfo.ids[node_index])
+
+
+func _write_wireinfo_data(file: File, nodeinfo: NodeInfoArrays, wire_info_array: Array):
+	file.store_string(\"# ==== WIRE ====\\n\")
+	
+	for wireinfo in wire_info_array:
+		var node_in_id = nodeinfo.ids[wireinfo.node_in_index]
+		var node_out_id = nodeinfo.ids[wireinfo.node_out_index]
+		file.store_string(\"component \")
+		file.store_string(wireinfo.id)
+		file.store_string(\" wire \")
+		file.store_string(node_in_id)
+		file.store_string(\" \")
+		file.store_string(node_out_id)
+		file.store_string(\"\\n\")
+	
+	file.store_string(\"\\n\")
+
+
+func _write_sim_param_data(file: File):
+	file.store_string(\"# ==== PARAM ====\\n\")
+	file.store_string(\"param vd-max \")
+	file.store_string(get_node(\"../../vd_max/value\").text)
+	file.store_string(\"\\n\")
+	
+	file.store_string(\"param ts-max \")
+	file.store_string(get_node(\"../../ts_max/value\").text)
+	file.store_string(\"\\n\")
+	
+	file.store_string(\"param duration \")
+	file.store_string(get_node(\"../../duration/value\").text)
+	file.store_string(\"\\n\")
+	
+	file.store_string(\"\\n\")
+
+
+func _write_run(file: File):
+	if get_node(\"../../auto_run/value\").pressed:
+		file.store_string(\"run\\n\\n\")
+	
+
+"
+
+[sub_resource type="GDScript" id=5]
+script/source = "extends Panel
+
+
+# Declare member variables here. Examples:
+# var a = 2
+# var b = \"text\"
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+#func _process(delta):
+#	pass
+
+
+func _on_log_button_toggled(button_pressed):
+	visible = button_pressed
+"
+
+[sub_resource type="GDScript" id=6]
+script/source = "extends RichTextLabel
+
+
+# Declare member variables here. Examples:
+# var a = 2
+# var b = \"text\"
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+#func _process(delta):
+#	pass
+
+
+func _on_cli_input_text_entered(new_text):
+	add_text(new_text)
+	add_text(\"\\n\")
+"
+
+[node name="main_window" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 1.0
+margin_right = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="main_area" type="Panel" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -1.0
+margin_top = 23.4388
+margin_bottom = -24.5612
+script = SubResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="popup_menu" type="PopupMenu" parent="main_area"]
+margin_right = 20.0
+margin_bottom = 20.0
+
+[node name="top_panel" type="Panel" parent="."]
+anchor_right = 1.0
+margin_left = -1.0
+margin_bottom = 24.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="menu_bar" type="HBoxContainer" parent="top_panel"]
+margin_top = 4.0
+margin_right = 1024.0
+margin_bottom = 24.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="menu_file" type="MenuButton" parent="top_panel/menu_bar"]
+margin_right = 35.0
+margin_bottom = 20.0
+text = "File"
+
+[node name="menu_edit" type="MenuButton" parent="top_panel/menu_bar"]
+margin_left = 39.0
+margin_right = 75.0
+margin_bottom = 20.0
+focus_mode = 2
+text = "Edit"
+
+[node name="menu_view" type="MenuButton" parent="top_panel/menu_bar"]
+margin_left = 79.0
+margin_right = 121.0
+margin_bottom = 20.0
+focus_mode = 2
+text = "View"
+
+[node name="info_bar" type="Panel" parent="."]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -1.0
+margin_top = -24.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="log_button" type="Button" parent="info_bar"]
+anchor_bottom = 1.0
+margin_right = 32.0
+toggle_mode = true
+text = "^"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="cli_input" type="LineEdit" parent="info_bar"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 32.0
+margin_right = -351.0
+placeholder_text = "command"
+script = SubResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="sim_config_button" type="Button" parent="info_bar"]
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -350.0
+margin_right = -136.0
+toggle_mode = true
+text = "sim config"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="sim_config" type="Panel" parent="info_bar/sim_config_button"]
+visible = false
+anchor_right = 1.0
+margin_top = -200.0
+script = SubResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="vd_max" type="Control" parent="info_bar/sim_config_button/sim_config"]
+anchor_right = 1.0
+margin_bottom = 24.0
+
+[node name="label" type="Label" parent="info_bar/sim_config_button/sim_config/vd_max"]
+anchor_top = 0.5
+anchor_bottom = 0.5
+margin_top = -7.0
+margin_right = 47.0
+margin_bottom = 7.0
+text = "vd-max"
+
+[node name="value" type="LineEdit" parent="info_bar/sim_config_button/sim_config/vd_max"]
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+margin_left = -128.0
+margin_top = -12.0
+margin_bottom = 12.0
+text = "100e-6"
+align = 2
+
+[node name="ts_max" type="Control" parent="info_bar/sim_config_button/sim_config"]
+anchor_right = 1.0
+margin_top = 28.0
+margin_bottom = 52.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="label" type="Label" parent="info_bar/sim_config_button/sim_config/ts_max"]
+anchor_top = 0.5
+anchor_bottom = 0.5
+margin_top = -7.0
+margin_right = 44.0
+margin_bottom = 7.0
+text = "ts-max"
+
+[node name="value" type="LineEdit" parent="info_bar/sim_config_button/sim_config/ts_max"]
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+margin_left = -128.0
+margin_top = -12.0
+margin_bottom = 12.0
+text = "50e-9"
+align = 2
+
+[node name="duration" type="Control" parent="info_bar/sim_config_button/sim_config"]
+anchor_right = 1.0
+margin_top = 56.0
+margin_bottom = 80.0
+
+[node name="label" type="Label" parent="info_bar/sim_config_button/sim_config/duration"]
+anchor_top = 0.5
+anchor_bottom = 0.5
+margin_top = -7.0
+margin_right = 40.0
+margin_bottom = 7.0
+text = "duration"
+
+[node name="value" type="LineEdit" parent="info_bar/sim_config_button/sim_config/duration"]
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+margin_left = -128.0
+margin_top = -12.0
+margin_bottom = 12.0
+text = "10e-3"
+align = 2
+
+[node name="auto_run" type="Control" parent="info_bar/sim_config_button/sim_config"]
+anchor_right = 1.0
+margin_top = 84.0
+margin_bottom = 108.0
+
+[node name="label" type="Label" parent="info_bar/sim_config_button/sim_config/auto_run"]
+anchor_top = 0.5
+anchor_bottom = 0.5
+margin_top = -7.0
+margin_right = 53.0
+margin_bottom = 7.0
+text = "auto run"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="value" type="CheckBox" parent="info_bar/sim_config_button/sim_config/auto_run"]
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+margin_left = -128.0
+margin_top = -12.0
+margin_bottom = 12.0
+pressed = true
+
+[node name="default_capacitance" type="Control" parent="info_bar/sim_config_button/sim_config"]
+anchor_right = 1.0
+margin_top = 112.0
+margin_bottom = 136.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="label" type="Label" parent="info_bar/sim_config_button/sim_config/default_capacitance"]
+anchor_top = 0.5
+anchor_bottom = 0.5
+margin_top = -7.0
+margin_bottom = 7.0
+text = "capacitance"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="value" type="LineEdit" parent="info_bar/sim_config_button/sim_config/default_capacitance"]
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+margin_left = -128.0
+margin_top = -12.0
+margin_bottom = 12.0
+text = "1e-9"
+align = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="sim_file_name" type="Control" parent="info_bar/sim_config_button/sim_config"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -56.0
+margin_bottom = -32.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="label" type="Label" parent="info_bar/sim_config_button/sim_config/sim_file_name"]
+anchor_top = 0.5
+anchor_bottom = 0.5
+margin_top = -7.0
+margin_right = 40.0
+margin_bottom = 7.0
+text = "file name"
+
+[node name="value" type="LineEdit" parent="info_bar/sim_config_button/sim_config/sim_file_name"]
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+margin_left = -128.0
+margin_top = -12.0
+margin_bottom = 12.0
+text = "sim.txt"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="write_to_file" type="Control" parent="info_bar/sim_config_button/sim_config"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -24.0
+
+[node name="write" type="Button" parent="info_bar/sim_config_button/sim_config/write_to_file"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -4.0
+margin_bottom = -4.0
+text = "export sim file"
+script = SubResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="log_area" type="Panel" parent="info_bar"]
+visible = false
+anchor_right = 1.0
+margin_top = -200.0
+margin_right = -129.0
+script = SubResource( 5 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="log_text" type="RichTextLabel" parent="info_bar/log_area"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Welcome to the simulator!
+"
+script = SubResource( 6 )
+
+[node name="x_coord" type="Label" parent="info_bar"]
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -128.0
+margin_right = -64.0
+text = "x: 0"
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="y_coord" type="Label" parent="info_bar"]
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -64.0
+text = "y: 0"
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="gui_input" from="main_area" to="main_area" method="_on_main_area_gui_input"]
+[connection signal="mouse_entered" from="main_area" to="main_area" method="_on_main_area_mouse_entered"]
+[connection signal="mouse_exited" from="main_area" to="main_area" method="_on_main_area_mouse_exited"]
+[connection signal="id_pressed" from="main_area/popup_menu" to="main_area" method="_on_add_item_id_pressed"]
+[connection signal="toggled" from="info_bar/log_button" to="info_bar/log_area" method="_on_log_button_toggled"]
+[connection signal="text_entered" from="info_bar/cli_input" to="info_bar/cli_input" method="_on_cli_input_text_entered"]
+[connection signal="text_entered" from="info_bar/cli_input" to="info_bar/log_area/log_text" method="_on_cli_input_text_entered"]
+[connection signal="toggled" from="info_bar/sim_config_button" to="info_bar/sim_config_button/sim_config" method="_on_sim_config_button_toggled"]
+[connection signal="button_up" from="info_bar/sim_config_button/sim_config/write_to_file/write" to="info_bar/sim_config_button/sim_config/write_to_file/write" method="_on_write_button_up"]

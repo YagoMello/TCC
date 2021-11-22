@@ -1,0 +1,23 @@
+show models
+node v+ 1e-15
+node v- 1e-15
+node vb 1e-15
+node vc 1e-15
+node vsw 1e-15
+node lin 1e-15
+edit node v- gnd true
+edit node v- hide true
+edit node v+ hide true
+component vcc vs v+ v- 10
+component vs vs-ac-sweep-log vsw v- 0.75 1e9 100e9 1e-9 0.75
+param duration 1e-9
+component T1 npn vb vc v- 100 0.5 100000e9
+component R1 resistor v+ lin 100
+component Rs resistor vsw vb 100
+component L1 inductor lin vc 1e-9
+param vd-max 50e-6
+param ts-max 20e-14
+print interval 1e-13
+#print mode peak
+print type gnuplot outsweep.csv
+run

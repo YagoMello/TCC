@@ -1,0 +1,30 @@
+# == nodes ==
+node in+  1e-6
+node in-  1e-6
+node out+ 1e-6
+node out- 1e-6
+
+edit node in- gnd true
+
+# == components ==
+component M1 dc-motor-2 in+ in-
+component M2 dc-motor-2 out+ out-
+component Vs sources::voltage-dc in+ in- 12
+component Rl resistor out+ out- 4
+component C1 capacitor out+ out- 0.01
+
+# == variables ==
+show shared-vars
+bind M1:tau M2:tau
+bind M1:J M2:J
+bind M1:w M2:w
+
+component gp printer::gnuplot points 1000 average
+
+print var M1:w
+print var M2:w
+print var M1:i
+print var M2:i
+
+param duration 0.5
+run

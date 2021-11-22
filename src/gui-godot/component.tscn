@@ -1,0 +1,245 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node2D
+
+var pin_obj = preload(\"res://pin.tscn\")
+
+enum HighlightMode {OFF, SELECTED_ONLY, HOVER}
+enum InputMode {IGNORE, M1_ONLY, NORMAL}
+
+class model_info_type:
+	var instance_count: int = 0
+
+export var file_name: String
+export var file_path: String
+export var data: Dictionary
+export var offset: Vector2
+export var simid: String
+
+var _pins: Array
+var _text_params: Dictionary
+var _is_selected := false
+
+var on_click_callback: FuncRef
+var _highlight_mode: int = HighlightMode.HOVER
+var _input_mode: int = InputMode.NORMAL
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+func destructor():
+	print(data[\"simid\"], \" destructor called\")
+	return {\"pins\": get_pins()}
+
+
+func init(filepath, filename, model_info):
+	file_path = filepath
+	file_name = filename
+	
+	if not file_path.ends_with(\"/\"):
+		file_path += \"/\"
+	
+	var file := File.new()
+	var json
+	if file.open(file_path + file_name, File.READ) == OK:
+		json = JSON.parse(file.get_as_text())
+		data = json.result
+		file.close()
+		
+		$sprite.texture = load(file_path + data[\"sprite\"])
+		$highlight.texture = load(file_path + data[\"highlight\"])
+		
+		var shape = $sprite.texture.get_size()
+		$control.margin_left   = -shape.x / 2
+		$control.margin_right  =  shape.x / 2
+		$control.margin_top    = -shape.y / 2
+		$control.margin_bottom =  shape.y / 2
+		
+		simid = data[\"simid\"]
+		if not model_info.has(simid):
+			print(\"creating info for \", simid)
+			model_info[simid] = model_info_type.new()
+		
+		data[\"simid\"] = simid.format({\"id\": model_info[simid].instance_count})
+		
+		if data.has(\"offset\"):
+			offset.x += data[\"offset\"][\"x\"]
+			offset.y += data[\"offset\"][\"y\"]
+			position += offset
+		
+		for param in data[\"params\"]:
+			var entry = HBoxContainer.new()
+			var label = Label.new()
+			var input = LineEdit.new()
+			
+			label.text = param
+			input.text = data[\"params\"][param]
+			
+			entry.add_child(label)
+			entry.add_child(input)
+			
+			get_node(\"config_popup/config_vbox\").add_child(entry)
+			_text_params[param] = input
+			
+		
+		for port in data[\"portinfo\"]:
+			var pin = pin_obj.instance()
+			pin.id = data[\"simid\"] + \".\" + port[\"name\"]
+			
+			if port.has(\"gnd\"):
+				pin.is_gnd = port[\"gnd\"]
+			
+			if port.has(\"hidden\"):
+				pin.is_hidden = port[\"hidden\"]
+			
+			pin.position.x = int(port[\"x\"])
+			pin.position.y = int(port[\"y\"])
+			add_child(pin)
+			_pins.append(pin)
+			
+	else:
+		print(\"Failed to open \" + file_path + file_name)
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+#func _process(_delta):
+#	pass
+
+
+func _on_control_gui_input(event):
+	if _input_mode == InputMode.M1_ONLY or _input_mode == InputMode.NORMAL:
+		if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and event.pressed:
+			print(\"component clicked (m1)\")
+			on_click_callback.call_func(self)
+	
+	if _input_mode == InputMode.NORMAL:
+		if event is InputEventMouseButton and event.button_index == BUTTON_RIGHT and not event.pressed and not _is_selected:
+			print(\"component clicked (m2)\")
+			var mouse_pos = get_global_mouse_position()
+			$config_popup.popup(Rect2(mouse_pos.x, mouse_pos.y, 200, 200))
+
+
+func _on_control_mouse_entered():
+	if _highlight_mode == HighlightMode.HOVER:
+		$highlight.visible = true
+
+
+func _on_control_mouse_exited():
+	if _highlight_mode == HighlightMode.HOVER:
+		$highlight.visible = false
+
+
+func get_pins():
+	return _pins
+
+
+func update_popup_text():
+	for elem in _text_params:
+		data[\"params\"][elem] = _text_params[elem].text
+
+
+func reset_popup_text():
+	for elem in _text_params:
+		_text_params[elem].text = data[\"params\"][elem]
+
+
+func is_selected(value: bool):
+	_is_selected = value
+	highlight(value)
+	if value:
+		print(\"setting \", data[\"simid\"], \" to PASS\")
+		$control.mouse_filter = Control.MOUSE_FILTER_PASS
+	else:
+		print(\"setting \", data[\"simid\"], \" to STOP\")
+		$control.mouse_filter = Control.MOUSE_FILTER_STOP
+		
+
+
+func _on_config_popup_close():
+	reset_popup_text()
+
+
+func _on_btn_ok_button_up():
+	update_popup_text()
+	$config_popup.hide()
+
+
+func _on_btn_cancel_button_up():
+	$config_popup.hide()
+
+
+func mouse_detection(active: bool):
+	if active:
+		_input_mode = InputMode.NORMAL
+		_highlight_mode = HighlightMode.HOVER
+	else:
+		_input_mode = InputMode.M1_ONLY
+		_highlight_mode = HighlightMode.SELECTED_ONLY
+
+
+func highlight(active: bool):
+	$highlight.visible = active
+
+
+func move(dist: Vector2):
+	position += dist
+	position.x = int(position.x + sign(position.x) * 0.5)
+	position.y = int(position.y + sign(position.y) * 0.5)
+	
+
+
+"
+
+[node name="component" type="Node2D"]
+script = SubResource( 1 )
+
+[node name="highlight" type="Sprite" parent="."]
+
+[node name="sprite" type="Sprite" parent="."]
+
+[node name="control" type="Control" parent="."]
+margin_left = -32.0
+margin_top = -32.0
+margin_right = 32.0
+margin_bottom = 32.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="config_popup" type="WindowDialog" parent="."]
+margin_right = 48.0
+margin_bottom = 40.0
+mouse_filter = 2
+
+[node name="config_vbox" type="VBoxContainer" parent="config_popup"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_bottom = -24.0
+
+[node name="confirm" type="HBoxContainer" parent="config_popup"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -24.0
+alignment = 2
+
+[node name="btn_ok" type="Button" parent="config_popup/confirm"]
+margin_right = 30.0
+margin_bottom = 24.0
+text = "Ok"
+
+[node name="btn_cancel" type="Button" parent="config_popup/confirm"]
+margin_left = 34.0
+margin_right = 88.0
+margin_bottom = 24.0
+text = "Cancel"
+
+[connection signal="gui_input" from="control" to="." method="_on_control_gui_input"]
+[connection signal="mouse_entered" from="control" to="." method="_on_control_mouse_entered"]
+[connection signal="mouse_exited" from="control" to="." method="_on_control_mouse_exited"]
+[connection signal="popup_hide" from="config_popup" to="." method="_on_config_popup_close"]
+[connection signal="button_up" from="config_popup/confirm/btn_ok" to="." method="_on_btn_ok_button_up"]
+[connection signal="button_up" from="config_popup/confirm/btn_cancel" to="." method="_on_btn_cancel_button_up"]

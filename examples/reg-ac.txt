@@ -1,0 +1,21 @@
+node vin 100e-9
+node com 100e-9
+node adj 1e-9
+node fbk 1e-9
+node vout 100e-6
+component vs vs-ac vin com 10 10 90 0
+component ta npn adj vin vout 400 0.5 1e6
+component tf npn fbk adj com 100 0.5 1e6
+component ra resistor vin adj 1000
+component r1 resistor vout fbk 2000
+component r2 resistor fbk com 1000
+component rl resistor vout com 200
+edit node com gnd true
+param vd-max 20e-6
+param ts-max 10e-9
+param duration 0.20
+print points 5000
+#print start 0.05
+print type gnuplot outsin.csv
+print mode average
+run

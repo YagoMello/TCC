@@ -1,0 +1,15 @@
+{
+  "simid": "GP{id}",
+  "simmodel": "printer::gnuplot",
+  "sprite": "flag.png",
+  "highlight": "flag-highlight.png",
+  "portinfo": [],
+  "params": {
+    "sampl. mode": "points",
+    "poits/interv.": "1000",
+    "print mode": "average",
+    "start time": "0",
+    "precision": "10"
+  }
+}
+ 

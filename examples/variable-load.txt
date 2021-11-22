@@ -1,0 +1,13 @@
+node v+ 1e-8
+node v- 1e-8
+node vo 1e-8
+edit node v- gnd true
+component ld load::step vo v- 1e-3 100 2e-3 200 3e-3 400
+component vs old-vs v+ v- 10 1
+component rl resistor v+ vo 200
+print var rl:i
+component gp printer::gnuplot 1e-6 average
+param duration 5e-3
+param vd-max 1e-6
+param ts-max 1e-9
+run

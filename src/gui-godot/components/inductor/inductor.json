@@ -1,0 +1,26 @@
+{
+  "simid": "L{id}",
+  "simmodel": "inductor",
+  "sprite": "inductor.png",
+  "highlight": "inductor-highlight.png",
+  "offset": {
+    "x": 0,
+    "y": -5
+  },
+  "portinfo": [
+    {
+      "name": "positive",
+      "x": -32,
+      "y":   5
+    }, 
+    {
+      "name": "negative",
+      "x": 32,
+      "y":  5
+    }
+  ],
+  "params": {
+    "inductance": "1e-3",
+    "resistance": "0"
+  }
+}

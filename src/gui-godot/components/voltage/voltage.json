@@ -1,0 +1,22 @@
+{
+  "simid": "VS{id}",
+  "simmodel": "sources::voltage-dc",
+  "sprite": "voltage.png",
+  "highlight": "voltage-highlight.png",
+  "portinfo": [
+    {
+      "name": "positive",
+      "x": 32,
+      "y":   0
+    }, 
+    {
+      "name": "negative",
+      "x": -32,
+      "y":  0
+    }
+  ],
+  "params": {
+    "voltage": "5.0"
+  }
+}
+ 

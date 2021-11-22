@@ -1,0 +1,156 @@
+#ifndef CAPACITOR_TEST_HPP
+#define CAPACITOR_TEST_HPP
+
+// INCLUDE <>
+#include <cstdint>
+
+// INCLUDE ""
+#include "../simulator/node.hpp"
+#include "../simulator/component.hpp"
+
+class capacitor_test_bad_t : public component_t {
+public:
+    virtual void apply_patches(simulator_t *) override {
+        node_positive->increment_capacitance(capacitance);
+        node_negative->increment_capacitance(capacitance);
+    }
+    
+    virtual void calculate_values(double) override {
+        double vp = node_positive->get_voltage();
+        double vn = node_negative->get_voltage();
+        
+        charge_delta_p = vp * capacitance - charge_p;
+        charge_delta_n = vn * capacitance - charge_n;
+        
+        charge_p += charge_delta_p;
+        charge_n += charge_delta_n;
+    }
+    
+    virtual double get_smallest_capacitance() override {
+        double positive_cap = node_positive->get_capacitance();
+        double negative_cap = node_negative->get_capacitance();
+        
+        return std::min(positive_cap, negative_cap);
+    }
+    
+    virtual void accumulate_charge_on_nodes(double) override {
+        node_positive->decrement_charge( charge_delta_p );
+        node_negative->increment_charge( charge_delta_p );
+        
+        node_positive->increment_charge( charge_delta_n );
+        node_negative->decrement_charge( charge_delta_n );
+    }
+    
+    void set_nodes(node_t * positive, node_t * negative){
+        node_positive = positive;
+        node_negative = negative;
+    }
+    
+    void set_capacitance(const double value){
+       capacitance = value;
+    }
+    
+private:
+    double capacitance = 1;
+    
+    double charge_p = 0;
+    double charge_n = 0;
+    
+    double charge_delta_p = 0;
+    double charge_delta_n = 0;
+    
+    node_t * node_positive;
+    node_t * node_negative;
+};
+
+
+class capacitor_test_t : public component_t {
+public:
+    virtual void apply_patches(simulator_t *) override {
+        node_positive->increment_capacitance(capacitance / 2);
+        node_negative->increment_capacitance(capacitance / 2);
+    }
+    
+    virtual void calculate_values(double) override {
+        double vd = node_t::voltage_difference(node_positive, node_negative);
+        
+        charge_delta = (vd * capacitance / 2 - charge) / 2;
+        
+        charge += charge_delta;
+    }
+    
+    virtual double get_smallest_capacitance() override {
+        double positive_cap = node_positive->get_capacitance();
+        double negative_cap = node_negative->get_capacitance();
+        
+        return std::min(positive_cap, negative_cap);
+    }
+    
+    virtual void accumulate_charge_on_nodes(double) override {
+        node_positive->decrement_charge( charge_delta );
+        node_negative->increment_charge( charge_delta );
+    }
+    
+    void set_nodes(node_t * positive, node_t * negative){
+        node_positive = positive;
+        node_negative = negative;
+    }
+    
+    void set_capacitance(const double value){
+       capacitance = value;
+    }
+    
+private:
+    double capacitance = 1;
+    
+    double charge = 0;
+    double charge_delta = 0;
+    
+    node_t * node_positive;
+    node_t * node_negative;
+};
+
+
+/*
+class old_capacitor_t : public component_t {
+public:
+    virtual void calculate_values(double) override {
+        double vd = node_t::voltage_difference(node_positive, node_negative);
+        double vc = charge / capacitance;
+        
+        double charge_delta;
+        
+        double inv_cap_p = 1 / node_positive->get_capacitance();
+        double inv_cap_n = 1 / node_negative->get_capacitance();
+        double inv_cap_c = 1 / capacitance;
+        
+        charge_delta = (vd - vc) / (inv_cap_p + inv_cap_n + inv_cap_c);
+        charge += charge_delta;
+    }
+    
+    virtual void accumulate_charge_on_nodes(double dt) override {
+        node_positive->decrement_charge( charge_delta );
+        node_negative->increment_charge( charge_delta );
+    }
+    
+    void set_nodes(node_t * positive, node_t * negative){
+        node_positive = positive;
+        node_negative = negative;
+    }
+    
+    void set_capacitance(const double value){
+       capacitance = value;
+    }
+    
+private:
+    double capacitance = 1;
+    
+    double charge = 0;
+    double charge_delta = 0;
+    
+    node_t * node_positive;
+    node_t * node_negative;
+};
+*/
+
+#endif // CAPACITOR_TEST_HPP

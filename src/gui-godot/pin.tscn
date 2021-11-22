@@ -1,0 +1,112 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://assets/pin.png" type="Texture" id=1]
+[ext_resource path="res://assets/pin_highlight.png" type="Texture" id=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Sprite
+
+export var is_draggable := false
+export var id := \"null\"
+export var is_gnd := false
+export var is_hidden := false
+#var connected_to = Array()
+var is_dragging := false
+var _is_ignoring_mouse := false
+
+# Called when the node enters the scene tree for the first time.
+#func _ready():
+#	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(_delta):
+	if is_dragging:
+		get_parent().move_pin(self)
+
+
+func _on_control_gui_input(event):
+	if not _is_ignoring_mouse:
+		if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and event.pressed:
+			if is_draggable:
+				is_dragging = true
+		
+		if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and !event.pressed:
+			is_dragging = false
+
+
+func _on_control_mouse_entered():
+	if not _is_ignoring_mouse:
+		$highlight.visible = true
+
+
+func _on_control_mouse_exited():
+	if not _is_ignoring_mouse:
+		$highlight.visible = false
+
+
+func set_grid(grid_size):
+	var grid_margin = int(grid_size) + 1
+	$control.margin_top    = -grid_margin
+	$control.margin_bottom =  grid_margin
+	$control.margin_left   = -grid_margin
+	$control.margin_right  =  grid_margin
+
+
+func mouse_detection(active: bool):
+	if active:
+		$control.mouse_filter = Control.MOUSE_FILTER_STOP
+		_is_ignoring_mouse = false
+	else:
+		$control.mouse_filter = Control.MOUSE_FILTER_PASS
+		_is_ignoring_mouse = true
+		highlight(false)
+
+
+func highlight(active: bool):
+	$highlight.visible = active
+
+
+"
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends Control
+
+
+# Declare member variables here. Examples:
+# var a = 2
+# var b = \"text\"
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+#func _process(delta):
+#	pass
+"
+
+[node name="pin" type="Sprite"]
+scale = Vector2( 0.5, 0.5 )
+texture = ExtResource( 1 )
+script = SubResource( 1 )
+
+[node name="control" type="Control" parent="."]
+margin_left = -12.0
+margin_top = -12.0
+margin_right = 12.0
+margin_bottom = 12.0
+script = SubResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="highlight" type="Sprite" parent="."]
+visible = false
+texture = ExtResource( 2 )
+
+[connection signal="gui_input" from="control" to="." method="_on_control_gui_input"]
+[connection signal="mouse_entered" from="control" to="." method="_on_control_mouse_entered"]
+[connection signal="mouse_exited" from="control" to="." method="_on_control_mouse_exited"]

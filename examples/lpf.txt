@@ -1,0 +1,36 @@
+# ==== INIT ====
+show models
+
+# ==== NODE ====
+node com 1e-9
+node filt-in 1e-9
+node filt-out 1e-9
+
+edit node com gnd true
+edit node com hide true
+
+# ==== COMP ====
+#component vs sources::voltage-ac-sweep-log filt-in com 1 0.001 100
+#component vs sources::voltage-dc-sweep filt-in com 0 10
+#component vs sources::voltage-ac filt-in com 1 1
+component vs sources::voltage-dc filt-in com 1
+component gp printer::gnuplot points 2000 max-abs
+component lp filt::critical filt-in filt-out com 6 0.1
+
+#print var lp:s0
+#print var lp:s1
+#print var lp:s2
+#print var lp:s3
+#print var lp:s4
+print var lp:d0
+#print var lp:d1
+#print var lp:d2
+#print var lp:d3
+#print var lp:d4
+
+# ==== PARA ====
+param duration 10
+param vd-max 200e-6
+param ts-max 200e-9
+
+run 

@@ -1,0 +1,22 @@
+{
+  "simid": "IS{id}",
+  "simmodel": "sources::current-dc",
+  "sprite": "current-source.png",
+  "highlight": "current-source-highlight.png",
+  "portinfo": [
+    {
+      "name": "in",
+      "x": -32,
+      "y":   0
+    }, 
+    {
+      "name": "out",
+      "x": 32,
+      "y":  0
+    }
+  ],
+  "params": {
+    "current": "10e-3"
+  }
+}
+ 

@@ -1,0 +1,15 @@
+node vcc 1e-6
+node com 1e-6
+edit node com gnd true
+edit node com hide true
+component Vs vs vcc com 12
+component M1 dc-motor-pi vcc com 40 0.3 0.1 2000 0.005
+param duration 100e-3
+print type gnuplot control.csv
+#print start 200e-3
+print points 2000
+print mode average
+show printables
+print var M1:motor:i
+print var M1:motor:w
+run

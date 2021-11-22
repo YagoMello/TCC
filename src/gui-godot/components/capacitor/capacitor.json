@@ -1,0 +1,22 @@
+{
+  "simid": "C{id}",
+  "simmodel": "capacitor",
+  "sprite": "capacitor.png",
+  "highlight": "capacitor-highlight.png",
+  "portinfo": [
+    {
+      "name": "positive",
+      "x": -32,
+      "y":   0
+    }, 
+    {
+      "name": "negative",
+      "x": 32,
+      "y":  0
+    }
+  ],
+  "params": {
+    "capacitance": "10e-6"
+  }
+}
+ 

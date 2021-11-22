@@ -1,0 +1,19 @@
+# nodes
+node v+ 1e-6
+node com 1e-6
+
+edit node com gnd true
+edit node com hide true
+edit node v+ hide true
+
+# components
+component vs sources::voltage-dc v+ com 12
+component m1 dc-motor v+ com 0.5 1.5e-3 0.05 2.5e-4 1.21 2e-3
+component gp printer::gnuplot points 1000 average
+
+# pritables
+print var m1:i
+print var m1:w
+
+param duration 0.3
+run

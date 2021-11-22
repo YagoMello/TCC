@@ -1,0 +1,11 @@
+node com 100e-9
+node vout 1e-6
+component vs old-vs vout com 5 1000
+component c capacitor vout com 100e-6
+edit node com gnd true
+param vd-max 100e-6
+param ts-max 1e-6
+param duration 500e-3
+print interval 10e-6
+print type gnuplot out.csv
+run

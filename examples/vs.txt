@@ -1,0 +1,13 @@
+node v+ 10e-9 
+node com 10e-9
+node rout 10e-9;
+edit node com gnd true
+component vs old-vs v+ com 10 0.01
+component res resistor v+ rout 100
+component cap capacitor rout com 1e-6
+param vd-max 50e-6
+param ts-max 100e-9
+print interval 1e-6
+print type gnuplot out.csv
+param duration 1e-3
+run

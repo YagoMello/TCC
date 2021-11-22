@@ -1,0 +1,25 @@
+{
+  "simid": "D{id}",
+  "simmodel": "diode",
+  "sprite": "diode.png",
+  "highlight": "diode-highlight.png",
+  "portinfo": [
+    {
+      "name": "positive",
+      "x": -32,
+      "y":   0
+    }, 
+    {
+      "name": "negative",
+      "x": 32,
+      "y":  0
+    }
+  ],
+  "params": {
+    "resistance": "0.2",
+    "temperature": "25",
+    "n": "1.0", 
+    "isat": "1e-14"
+  }
+}
+ 

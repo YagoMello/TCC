@@ -1,0 +1,31 @@
+# nodes
+node vcc 10e-9
+node gnd 10e-9
+node sig 10e-9
+node base 1e-9
+node col 1e-12
+
+edit node gnd gnd true
+edit node gnd hide true
+edit node vcc hide true
+
+# components
+component gp printer::gnuplot points 2000 average
+component vs sources::voltage-dc vcc gnd 5
+component sg sources::voltage-square sig gnd 0 5 10000
+component q1 npn-legacy base col gnd
+component l1 inductor vcc col 50e-6 1
+component d1 diode col vcc
+component r1 resistor sig base 1000
+
+# print
+print var l1:i
+print var q1:ic
+print var d1:i
+
+# params
+param duration 300e-6
+param vd-max 200e-6
+param ts-max 10e-9
+
+run

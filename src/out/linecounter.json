@@ -1,0 +1,775 @@
+{
+    "extension": "linecounter",
+    "version": "0.2.7",
+    "workspace": "/home/yagomello/Documents/Software/nonlinear_refactored/src",
+    "linecount": [
+        {
+            "version": "0.2.7",
+            "counttime": "2021-04-07 03:44:25",
+            "filesum": 24,
+            "codesum": 2116,
+            "commentsum": 437,
+            "blanksum": 594,
+            "statistics": {
+                ".hpp": {
+                    "code": 927,
+                    "comment": 107,
+                    "blank": 290
+                },
+                ".cpp": {
+                    "code": 366,
+                    "comment": 212,
+                    "blank": 104
+                },
+                ".old": {
+                    "code": 382,
+                    "comment": 65,
+                    "blank": 117
+                },
+                ".h": {
+                    "code": 77,
+                    "comment": 20,
+                    "blank": 26
+                },
+                ".c": {
+                    "code": 364,
+                    "comment": 33,
+                    "blank": 57
+                }
+            },
+            "filelist": [
+                {
+                    "blank": 44,
+                    "code": 110,
+                    "comment": 42,
+                    "filename": "components/bjt.cpp"
+                },
+                {
+                    "blank": 13,
+                    "code": 35,
+                    "comment": 3,
+                    "filename": "components/capacitor.hpp.old"
+                },
+                {
+                    "blank": 32,
+                    "code": 81,
+                    "comment": 44,
+                    "filename": "components/capacitor_test.hpp.old"
+                },
+                {
+                    "blank": 10,
+                    "code": 30,
+                    "comment": 3,
+                    "filename": "components/diode.hpp.old"
+                },
+                {
+                    "blank": 11,
+                    "code": 37,
+                    "comment": 3,
+                    "filename": "components/inductor.cpp"
+                },
+                {
+                    "blank": 10,
+                    "code": 34,
+                    "comment": 3,
+                    "filename": "components/resistor.cpp"
+                },
+                {
+                    "blank": 46,
+                    "code": 166,
+                    "comment": 9,
+                    "filename": "components/scr.hpp.old"
+                },
+                {
+                    "blank": 11,
+                    "code": 36,
+                    "comment": 160,
+                    "filename": "components/voltage_source.cpp"
+                },
+                {
+                    "blank": 24,
+                    "code": 29,
+                    "comment": 1,
+                    "filename": "gui/external_components.hpp"
+                },
+                {
+                    "blank": 4,
+                    "code": 7,
+                    "comment": 3,
+                    "filename": "gui/obj_list.hpp"
+                },
+                {
+                    "blank": 57,
+                    "code": 364,
+                    "comment": 33,
+                    "filename": "gui/rb_tree.c"
+                },
+                {
+                    "blank": 15,
+                    "code": 37,
+                    "comment": 20,
+                    "filename": "gui/rb_tree.h"
+                },
+                {
+                    "blank": 11,
+                    "code": 40,
+                    "comment": 0,
+                    "filename": "gui/rb_tree_internal.h"
+                },
+                {
+                    "blank": 20,
+                    "code": 79,
+                    "comment": 2,
+                    "filename": "libs/autoreg.hpp"
+                },
+                {
+                    "blank": 8,
+                    "code": 33,
+                    "comment": 1,
+                    "filename": "libs/next.hpp"
+                },
+                {
+                    "blank": 27,
+                    "code": 147,
+                    "comment": 4,
+                    "filename": "program/basic.cpp"
+                },
+                {
+                    "blank": 1,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "program/database.cpp"
+                },
+                {
+                    "blank": 3,
+                    "code": 8,
+                    "comment": 1,
+                    "filename": "program/database.hpp"
+                },
+                {
+                    "blank": 61,
+                    "code": 238,
+                    "comment": 27,
+                    "filename": "simulator/component.hpp"
+                },
+                {
+                    "blank": 16,
+                    "code": 70,
+                    "comment": 6,
+                    "filename": "simulator/damped_node.hpp.old"
+                },
+                {
+                    "blank": 60,
+                    "code": 203,
+                    "comment": 3,
+                    "filename": "simulator/data_printer.hpp"
+                },
+                {
+                    "blank": 4,
+                    "code": 19,
+                    "comment": 14,
+                    "filename": "simulator/foreach.hpp"
+                },
+                {
+                    "blank": 50,
+                    "code": 165,
+                    "comment": 48,
+                    "filename": "simulator/node.hpp"
+                },
+                {
+                    "blank": 56,
+                    "code": 146,
+                    "comment": 7,
+                    "filename": "simulator/simulator.hpp"
+                }
+            ]
+        },
+        {
+            "version": "0.2.7",
+            "counttime": "2021-04-08 23:15:27",
+            "filesum": 26,
+            "codesum": 2796,
+            "commentsum": 461,
+            "blanksum": 721,
+            "statistics": {
+                ".h": {
+                    "code": 77,
+                    "comment": 20,
+                    "blank": 26
+                },
+                ".hpp": {
+                    "code": 1554,
+                    "comment": 215,
+                    "blank": 425
+                },
+                ".old": {
+                    "code": 382,
+                    "comment": 65,
+                    "blank": 117
+                },
+                ".cpp": {
+                    "code": 419,
+                    "comment": 128,
+                    "blank": 96
+                },
+                ".c": {
+                    "code": 364,
+                    "comment": 33,
+                    "blank": 57
+                }
+            },
+            "filelist": [
+                {
+                    "blank": 26,
+                    "code": 96,
+                    "comment": 7,
+                    "filename": "components/bjt.cpp"
+                },
+                {
+                    "blank": 13,
+                    "code": 35,
+                    "comment": 3,
+                    "filename": "components/capacitor.hpp.old"
+                },
+                {
+                    "blank": 32,
+                    "code": 81,
+                    "comment": 44,
+                    "filename": "components/capacitor_test.hpp.old"
+                },
+                {
+                    "blank": 10,
+                    "code": 30,
+                    "comment": 3,
+                    "filename": "components/diode.hpp.old"
+                },
+                {
+                    "blank": 11,
+                    "code": 37,
+                    "comment": 3,
+                    "filename": "components/inductor.cpp"
+                },
+                {
+                    "blank": 136,
+                    "code": 599,
+                    "comment": 89,
+                    "filename": "components/mcu.hpp"
+                },
+                {
+                    "blank": 10,
+                    "code": 34,
+                    "comment": 3,
+                    "filename": "components/resistor.cpp"
+                },
+                {
+                    "blank": 46,
+                    "code": 166,
+                    "comment": 9,
+                    "filename": "components/scr.hpp.old"
+                },
+                {
+                    "blank": 19,
+                    "code": 71,
+                    "comment": 113,
+                    "filename": "components/voltage_source.cpp"
+                },
+                {
+                    "blank": 24,
+                    "code": 29,
+                    "comment": 1,
+                    "filename": "gui/external_components.hpp"
+                },
+                {
+                    "blank": 4,
+                    "code": 7,
+                    "comment": 3,
+                    "filename": "gui/obj_list.hpp"
+                },
+                {
+                    "blank": 57,
+                    "code": 364,
+                    "comment": 33,
+                    "filename": "gui/rb_tree.c"
+                },
+                {
+                    "blank": 15,
+                    "code": 37,
+                    "comment": 20,
+                    "filename": "gui/rb_tree.h"
+                },
+                {
+                    "blank": 11,
+                    "code": 40,
+                    "comment": 0,
+                    "filename": "gui/rb_tree_internal.h"
+                },
+                {
+                    "blank": 20,
+                    "code": 79,
+                    "comment": 2,
+                    "filename": "libs/autoreg.hpp"
+                },
+                {
+                    "blank": 3,
+                    "code": 15,
+                    "comment": 1,
+                    "filename": "libs/mfind.hpp"
+                },
+                {
+                    "blank": 8,
+                    "code": 33,
+                    "comment": 1,
+                    "filename": "libs/next.hpp"
+                },
+                {
+                    "blank": 29,
+                    "code": 179,
+                    "comment": 2,
+                    "filename": "program/basic.cpp"
+                },
+                {
+                    "blank": 1,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "program/database.cpp"
+                },
+                {
+                    "blank": 3,
+                    "code": 8,
+                    "comment": 1,
+                    "filename": "program/database.hpp"
+                },
+                {
+                    "blank": 61,
+                    "code": 245,
+                    "comment": 27,
+                    "filename": "simulator/component.hpp"
+                },
+                {
+                    "blank": 16,
+                    "code": 70,
+                    "comment": 6,
+                    "filename": "simulator/damped_node.hpp.old"
+                },
+                {
+                    "blank": 58,
+                    "code": 200,
+                    "comment": 3,
+                    "filename": "simulator/data_printer.hpp"
+                },
+                {
+                    "blank": 4,
+                    "code": 19,
+                    "comment": 14,
+                    "filename": "simulator/foreach.hpp"
+                },
+                {
+                    "blank": 51,
+                    "code": 169,
+                    "comment": 67,
+                    "filename": "simulator/node.hpp"
+                },
+                {
+                    "blank": 53,
+                    "code": 151,
+                    "comment": 6,
+                    "filename": "simulator/simulator.hpp"
+                }
+            ]
+        },
+        {
+            "version": "0.2.7",
+            "counttime": "2021-04-20 20:44:58",
+            "filesum": 28,
+            "codesum": 2849,
+            "commentsum": 809,
+            "blanksum": 704,
+            "statistics": {
+                ".h": {
+                    "code": 77,
+                    "comment": 20,
+                    "blank": 26
+                },
+                ".hpp": {
+                    "code": 1419,
+                    "comment": 401,
+                    "blank": 373
+                },
+                ".cpp": {
+                    "code": 607,
+                    "comment": 290,
+                    "blank": 131
+                },
+                ".old": {
+                    "code": 382,
+                    "comment": 65,
+                    "blank": 117
+                },
+                ".c": {
+                    "code": 364,
+                    "comment": 33,
+                    "blank": 57
+                }
+            },
+            "filelist": [
+                {
+                    "blank": 24,
+                    "code": 94,
+                    "comment": 7,
+                    "filename": "components/bjt.cpp"
+                },
+                {
+                    "blank": 12,
+                    "code": 67,
+                    "comment": 65,
+                    "filename": "components/capacitor.cpp"
+                },
+                {
+                    "blank": 13,
+                    "code": 35,
+                    "comment": 3,
+                    "filename": "components/capacitor.hpp.old"
+                },
+                {
+                    "blank": 32,
+                    "code": 81,
+                    "comment": 44,
+                    "filename": "components/capacitor_test.hpp.old"
+                },
+                {
+                    "blank": 10,
+                    "code": 30,
+                    "comment": 3,
+                    "filename": "components/diode.hpp.old"
+                },
+                {
+                    "blank": 9,
+                    "code": 31,
+                    "comment": 3,
+                    "filename": "components/inductor.cpp"
+                },
+                {
+                    "blank": 136,
+                    "code": 599,
+                    "comment": 89,
+                    "filename": "components/mcu.hpp"
+                },
+                {
+                    "blank": 8,
+                    "code": 29,
+                    "comment": 3,
+                    "filename": "components/resistor.cpp"
+                },
+                {
+                    "blank": 46,
+                    "code": 166,
+                    "comment": 9,
+                    "filename": "components/scr.hpp.old"
+                },
+                {
+                    "blank": 29,
+                    "code": 146,
+                    "comment": 181,
+                    "filename": "components/voltage_source.cpp"
+                },
+                {
+                    "blank": 24,
+                    "code": 29,
+                    "comment": 1,
+                    "filename": "gui/external_components.hpp"
+                },
+                {
+                    "blank": 4,
+                    "code": 7,
+                    "comment": 3,
+                    "filename": "gui/obj_list.hpp"
+                },
+                {
+                    "blank": 57,
+                    "code": 364,
+                    "comment": 33,
+                    "filename": "gui/rb_tree.c"
+                },
+                {
+                    "blank": 15,
+                    "code": 37,
+                    "comment": 20,
+                    "filename": "gui/rb_tree.h"
+                },
+                {
+                    "blank": 11,
+                    "code": 40,
+                    "comment": 0,
+                    "filename": "gui/rb_tree_internal.h"
+                },
+                {
+                    "blank": 20,
+                    "code": 79,
+                    "comment": 2,
+                    "filename": "libs/autoreg.hpp"
+                },
+                {
+                    "blank": 3,
+                    "code": 15,
+                    "comment": 1,
+                    "filename": "libs/mfind.hpp"
+                },
+                {
+                    "blank": 8,
+                    "code": 33,
+                    "comment": 1,
+                    "filename": "libs/next.hpp"
+                },
+                {
+                    "blank": 29,
+                    "code": 185,
+                    "comment": 2,
+                    "filename": "program/basic.cpp"
+                },
+                {
+                    "blank": 1,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "program/database.cpp"
+                },
+                {
+                    "blank": 3,
+                    "code": 8,
+                    "comment": 1,
+                    "filename": "program/database.hpp"
+                },
+                {
+                    "blank": 19,
+                    "code": 53,
+                    "comment": 29,
+                    "filename": "simulator/component.cpp"
+                },
+                {
+                    "blank": 13,
+                    "code": 48,
+                    "comment": 215,
+                    "filename": "simulator/component.hpp"
+                },
+                {
+                    "blank": 16,
+                    "code": 70,
+                    "comment": 6,
+                    "filename": "simulator/damped_node.hpp.old"
+                },
+                {
+                    "blank": 58,
+                    "code": 216,
+                    "comment": 5,
+                    "filename": "simulator/data_printer.hpp"
+                },
+                {
+                    "blank": 4,
+                    "code": 19,
+                    "comment": 14,
+                    "filename": "simulator/foreach.hpp"
+                },
+                {
+                    "blank": 47,
+                    "code": 196,
+                    "comment": 64,
+                    "filename": "simulator/node.hpp"
+                },
+                {
+                    "blank": 53,
+                    "code": 170,
+                    "comment": 5,
+                    "filename": "simulator/simulator.hpp"
+                }
+            ]
+        },
+        {
+            "version": "0.2.7",
+            "counttime": "2021-04-27 19:08:30",
+            "filesum": 27,
+            "codesum": 2789,
+            "commentsum": 782,
+            "blanksum": 630,
+            "statistics": {
+                ".cpp": {
+                    "code": 940,
+                    "comment": 295,
+                    "blank": 161
+                },
+                ".hpp": {
+                    "code": 1467,
+                    "comment": 422,
+                    "blank": 352
+                },
+                ".old": {
+                    "code": 382,
+                    "comment": 65,
+                    "blank": 117
+                }
+            },
+            "filelist": [
+                {
+                    "blank": 18,
+                    "code": 130,
+                    "comment": 2,
+                    "filename": "components/ac_sweep.cpp"
+                },
+                {
+                    "blank": 38,
+                    "code": 207,
+                    "comment": 10,
+                    "filename": "components/bjt.cpp"
+                },
+                {
+                    "blank": 12,
+                    "code": 67,
+                    "comment": 64,
+                    "filename": "components/capacitor.cpp"
+                },
+                {
+                    "blank": 13,
+                    "code": 35,
+                    "comment": 3,
+                    "filename": "components/capacitor.hpp.old"
+                },
+                {
+                    "blank": 32,
+                    "code": 81,
+                    "comment": 44,
+                    "filename": "components/capacitor_test.hpp.old"
+                },
+                {
+                    "blank": 10,
+                    "code": 30,
+                    "comment": 3,
+                    "filename": "components/diode.hpp.old"
+                },
+                {
+                    "blank": 8,
+                    "code": 32,
+                    "comment": 2,
+                    "filename": "components/inductor.cpp"
+                },
+                {
+                    "blank": 136,
+                    "code": 599,
+                    "comment": 89,
+                    "filename": "components/mcu.hpp"
+                },
+                {
+                    "blank": 6,
+                    "code": 26,
+                    "comment": 2,
+                    "filename": "components/resistor.cpp"
+                },
+                {
+                    "blank": 46,
+                    "code": 166,
+                    "comment": 9,
+                    "filename": "components/scr.hpp.old"
+                },
+                {
+                    "blank": 27,
+                    "code": 143,
+                    "comment": 180,
+                    "filename": "components/voltage_source.cpp"
+                },
+                {
+                    "blank": 7,
+                    "code": 28,
+                    "comment": 2,
+                    "filename": "components/wire.cpp"
+                },
+                {
+                    "blank": 20,
+                    "code": 79,
+                    "comment": 2,
+                    "filename": "libs/autoreg.hpp"
+                },
+                {
+                    "blank": 3,
+                    "code": 12,
+                    "comment": 25,
+                    "filename": "libs/mfind.hpp"
+                },
+                {
+                    "blank": 8,
+                    "code": 33,
+                    "comment": 1,
+                    "filename": "libs/next.hpp"
+                },
+                {
+                    "blank": 37,
+                    "code": 243,
+                    "comment": 4,
+                    "filename": "program/basic.cpp"
+                },
+                {
+                    "blank": 1,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "program/database.cpp"
+                },
+                {
+                    "blank": 3,
+                    "code": 8,
+                    "comment": 1,
+                    "filename": "program/database.hpp"
+                },
+                {
+                    "blank": 6,
+                    "code": 60,
+                    "comment": 29,
+                    "filename": "simulator/component.cpp"
+                },
+                {
+                    "blank": 13,
+                    "code": 49,
+                    "comment": 215,
+                    "filename": "simulator/component.hpp"
+                },
+                {
+                    "blank": 16,
+                    "code": 70,
+                    "comment": 6,
+                    "filename": "simulator/damped_node.hpp.old"
+                },
+                {
+                    "blank": 57,
+                    "code": 224,
+                    "comment": 5,
+                    "filename": "simulator/data_printer.hpp"
+                },
+                {
+                    "blank": 4,
+                    "code": 19,
+                    "comment": 14,
+                    "filename": "simulator/foreach.hpp"
+                },
+                {
+                    "blank": 51,
+                    "code": 248,
+                    "comment": 64,
+                    "filename": "simulator/node.hpp"
+                },
+                {
+                    "blank": 1,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "simulator/print_mode.cpp"
+                },
+                {
+                    "blank": 5,
+                    "code": 17,
+                    "comment": 1,
+                    "filename": "simulator/print_mode.hpp"
+                },
+                {
+                    "blank": 52,
+                    "code": 179,
+                    "comment": 5,
+                    "filename": "simulator/simulator.hpp"
+                }
+            ]
+        }
+    ]
+}

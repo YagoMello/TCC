@@ -1,0 +1,27 @@
+# ==== NODES ====
+node v+ 1e-9
+node v- 1e-9
+node out 1e-9
+node com 1e-9
+node vin 1e-9
+
+edit node com gnd true
+edit node com hide true
+
+# ==== COMPONENTS ====
+component R2 resistor out v- 10000
+component R1 resistor v- vin 1000
+component A1 opamp v+ v- out
+component W1 wire v+ com true
+
+component vs sources::ac-sweep-log vin com 1 100 10000 0.01
+
+# ==== PRINTER ====
+component gp printer::gnuplot 1e-6 average
+
+# ==== PARAMS ====
+param duration 0.01
+param vd-max 10e-6
+param ts-max 20e-9
+
+run

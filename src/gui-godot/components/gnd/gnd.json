@@ -1,0 +1,21 @@
+{
+  "simid": "GND{id}",
+  "simmodel": "",
+  "sprite": "gnd.png",
+  "highlight": "gnd-highlight.png",
+  "offset": {
+    "x": 0,
+    "y": 8
+  },
+  "portinfo": [
+    {
+      "name": "gnd",
+      "gnd": true,
+      "hidden": true,
+      "x":  0,
+      "y": -8
+    }
+  ],
+  "params": { }
+}
+ 

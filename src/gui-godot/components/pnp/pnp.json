@@ -1,0 +1,32 @@
+{
+  "simid": "PNP{id}",
+  "simmodel": "pnp-legacy",
+  "sprite": "pnp.png",
+  "highlight": "pnp-highlight.png",
+  "offset": {
+    "x": 0,
+    "y": 8
+  },
+  "portinfo": [
+    {
+      "name": "base",
+      "x":   0,
+      "y": -24
+    },
+    {
+      "name": "collector",
+      "x": -32,
+      "y":   8
+    },
+    {
+      "name": "emitter",
+      "x": 32,
+      "y":  8
+    }
+  ],
+  "params": {
+    "beta-f": "100",
+    "beta-r": "0.5",
+  }
+}
+ 
