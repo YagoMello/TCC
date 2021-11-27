@@ -183,6 +183,7 @@ public:
         if(print_thread_status_ == RUN){
             print_thread_status_ = UPDATE_AND_STOP;
         }
+        while(print_thread_status_ != STOP);
         close_file();
     }
     
@@ -234,6 +235,7 @@ private:
     void free_resources(){
         if(print_thread_status_ == RUN){
             print_thread_status_ = UPDATE_AND_STOP;
+            while(print_thread_status_ != STOP);
         }
         if(print_thread_.joinable()){
             print_thread_.join();

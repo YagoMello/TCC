@@ -62,7 +62,7 @@ template <typename data_type>
 inline data_type next_as(std::string & str, data_type fail){
     data_type data;
     std::string arg = next(str);
-    if(arg != ""){
+    if(arg != "" && arg != "default" && arg != "_"){
         std::istringstream(arg) >> data;
     }
     else{
@@ -74,10 +74,10 @@ inline data_type next_as(std::string & str, data_type fail){
 template <>
 inline bool next_as<bool>(std::string & str, bool fail){
     std::string arg = next(str);
-    if(arg == "true"){
+    if(arg == "true" || arg == "1"){
         return true;
     }
-    else if(arg == "false"){
+    else if(arg == "false" || arg == "0"){
         return false;
     }
     else{

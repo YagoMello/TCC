@@ -1,0 +1,22 @@
+# ==== NODES ====
+node mcu-out 1e-8
+node filter 2e-6
+node vcc 1e-6
+node gnd 1e-6
+
+edit node gnd gnd true
+
+# ==== MCU ====
+component M1 digital::mcu8-v2 vcc gnd 256 256 ../examples/mcu-feedback-asm.txt true false 8e6 0 PA0 mcu-out ADC0 filter 5
+
+# ==== COMP ====
+component VS sources::voltage-dc vcc gnd 5
+component R1 resistor mcu-out filter 1000
+component gp printer::gnuplot points 1000 average 0
+
+# ==== PARAM ====
+param duration 8e-3
+param vd-max 1000e-6
+param ts-max 100e-9
+
+run

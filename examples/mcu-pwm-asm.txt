@@ -14,8 +14,6 @@ PWM:
     BANDF  PORTA    PORTA  R1
     AJ     PWM-END
 PWM-LOW:
-    NOP
     BORF   PORTA    PORTA  R7
-    NOP
 PWM-END:
     RET

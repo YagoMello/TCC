@@ -32,13 +32,23 @@ inline std::string find_node_s(std::map<std::string, std::shared_ptr<node::node_
     return info.str();
 }
 
-inline std::string find_node_s(std::map<std::string, std::shared_ptr<node::node_t>> & map, const std::string & key, node::node_t * & node, bool & flag_error){
+inline std::string find_node_s(
+    std::map<std::string, std::shared_ptr<node::node_t>> & map,
+    const std::string & key,
+    node::node_t * & node,
+    bool & flag_error,
+    bool accept_null = false
+){
     std::stringstream info;
     info << "[INFO] <find_node_s> searching for node \"" << key << "\"\n";
     
     auto iterator = map.find(key);
     const bool found = (iterator != map.end());
-    if(found){
+    if(accept_null && (key == "null" || key == "_" || key == "")){
+        node = nullptr;
+        info << "[INFO] <find_node_s> null node \"" << key << "\"\n";
+    }
+    else if(found){
         node = iterator->second.get();
         info << "[INFO] <find_node_s> found node \"" << key << "\" at " << node << "\n";
     }

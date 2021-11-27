@@ -16,19 +16,19 @@ edit node v- hide true
 edit node com hide true
 
 # COMPONENTS
-component is1 cs v+ mi_m 0.4e-3
+component is1 sources::current-dc v+ mi_m 0.4e-3
 component Q1 pnp-legacy in- mi_l mi_m
 component Q2 pnp-legacy in+ mi_r mi_m
 component Q3 npn-legacy mi_l mi_l v-
 component Q4 npn-legacy mi_l mi_r v-
-component is2 cs v+ amp 0.5e-3
+component is2 sources::current-dc v+ amp 0.5e-3
 component Q5 npn-legacy mi_r amp v-
 component Cc capacitor mi_r amp 10e-9
 component Q6 npn-legacy amp v+ out
-component is3 cs out v- 1e-3
+component is3 sources::current-dc out v- 1e-3
 component rl resistor out com 50e3
 
-component vin sources::voltage-ac-sweep-log in+ com 300e-3 1000 8000 0.001
+component vin sources::voltage-ac-sweep-log in+ com 300e-3 1000 8000
 #component vin sources::vs-ac in+ com 300e-3 16000
 
 param duration 0.001
@@ -43,8 +43,7 @@ component vee sources::voltage-dc v- com -5
 component r2 resistor out in- 10000
 component r1 resistor in- com 1000
 
-#print mode average
-#print mode none
 param vd-max 200e-6
 param ts-max 50e-9
+param duration 0.0001
 run

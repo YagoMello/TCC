@@ -1,0 +1,6 @@
+out
+build/*.o
+bin
+.vscode
+src/gui-godot/**/*.import
+src/gui-godot/*.txt
